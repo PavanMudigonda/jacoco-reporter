@@ -7,7 +7,7 @@ to the Workflow Run as a Check Run.
 
 
 This Action allows you to specify your JaCoCo Code Coverage XML Path, and then
-generate a markdown report from the test results.And Then it attaches it
+generate a markdown report from the test results and then it attaches it
 to the Workflow Run as a Check Run.
 
 Here's a quick example of how to use this action in your own GitHub Workflows.
