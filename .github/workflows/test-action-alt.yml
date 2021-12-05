@@ -1,0 +1,39 @@
+
+name: test-action-alt-2
+
+on:
+  push:
+  release:
+    types: published
+
+jobs:
+
+  run-tests:
+    runs-on: ubuntu-latest
+    steps:
+
+      - name: checkout
+        uses: actions/checkout@v1
+
+#       - name: generate my own test results
+#         shell: pwsh
+#         run: |
+#             $ErrorActionPreference = "Stop"
+
+#             Install-Module GitHubActions -Force
+#             Install-Module Pester -Force
+
+#             $test_results_path = 'my_own_test_results'
+#             mkdir $test_results_path
+
+#             Invoke-Pester tests -PassThru -OutputFormat "NUnitXml" -OutputFile "$test_results_path/pester-test-results.nunit.xml" -Verbose -ErrorAction "Stop"
+
+      - name: use this action, with existing test results
+        id: testAction3
+        uses: ./
+        with:
+          coverage_results_path: jacoco-report/test.xml
+          coverage_report_name: Code Coverage Report
+          coverage_report_title: JaCoCo
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          skip_check_run: false

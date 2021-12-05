@@ -1,0 +1,116 @@
+﻿<?xml version="1.0" encoding="utf-8" standalone="no"?>
+<test-results xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="nunit_schema_2.5.xsd"
+              name="Pester"
+              total="27" errors="0" failures="0" not-run="0" inconclusive="0" ignored="0" skipped="0" invalid="0" date="2020-08-06" time="13:23:36">
+  <environment user="ebekker" cwd="C:\local\prj\bek\pwsh-github-action-tools" os-version="10.0.18363" user-domain="EZSHIELD" machine-name="EZS-001388" nunit-version="2.5.8.0" clr-version="Unknown" platform="Microsoft Windows 10 Pro|C:\WINDOWS|\Device\Harddisk0\Partition3" />
+  <culture-info current-culture="en-US" current-uiculture="en-US" />
+  <test-suite type="TestFixture" name="Pester" executed="True" result="Success" success="True" time="1.9441" asserts="0" description="Pester">
+    <results>
+      <test-suite type="TestFixture" name="C:\local\prj\bek\pwsh-github-action-tools\tests\GitHubActions_tests.ps1" executed="True" result="Success" success="True" time="1.9441" asserts="0" description="C:\local\prj\bek\pwsh-github-action-tools\tests\GitHubActions_tests.ps1">
+        <results>
+          <test-suite type="TestFixture" name="Set-ActionVariable" executed="True" result="Success" success="True" time="0.4437" asserts="0" description="Set-ActionVariable">
+            <results>
+              <test-suite type="ParameterizedTest" name="Set-ActionVariable.Given valid -Name and -Value, and -SkipLocal" executed="True" result="Success" success="True" time="0.1825" asserts="0" description="Given valid -Name and -Value, and -SkipLocal">
+                <results>
+                  <test-case description="Given valid -Name and -Value, and -SkipLocal"
+                             name="Set-ActionVariable.Given valid -Name and -Value, and -SkipLocal(&quot;varValue1&quot;,&quot;varName1&quot;)"
+                             time="0.1679" asserts="0" success="True" result="Success" executed="True" />
+                  <test-case description="Given valid -Name and -Value, and -SkipLocal"
+                             name="Set-ActionVariable.Given valid -Name and -Value, and -SkipLocal(&quot;var value 2&quot;,&quot;var name 2&quot;)"
+                             time="0.0077" asserts="0" success="True" result="Success" executed="True" />
+                  <test-case description="Given valid -Name and -Value, and -SkipLocal"
+                             name="Set-ActionVariable.Given valid -Name and -Value, and -SkipLocal(&quot;::set-env name=var%2Cname%3B3::var,value;3&#xD;&#xA;&quot;,&quot;var,value;3&quot;,&quot;var,name;3&quot;)"
+                             time="0.0069" asserts="0" success="True" result="Success" executed="True" />
+                </results>
+              </test-suite>
+              <test-suite type="ParameterizedTest" name="Set-ActionVariable.Given valid -Name and -Value, and NOT -SkipLocal" executed="True" result="Success" success="True" time="0.0396" asserts="0" description="Given valid -Name and -Value, and NOT -SkipLocal">
+                <results>
+                  <test-case description="Given valid -Name and -Value, and NOT -SkipLocal" name="Set-ActionVariable.Given valid -Name and -Value, and NOT -SkipLocal(&quot;varValue1&quot;,&quot;varName1&quot;)" time="0.0162" asserts="0" success="True" result="Success" executed="True" />
+                  <test-case description="Given valid -Name and -Value, and NOT -SkipLocal" name="Set-ActionVariable.Given valid -Name and -Value, and NOT -SkipLocal(&quot;var value 2&quot;,&quot;var name 2&quot;)" time="0.0081" asserts="0" success="True" result="Success" executed="True" />
+                  <test-case description="Given valid -Name and -Value, and NOT -SkipLocal" name="Set-ActionVariable.Given valid -Name and -Value, and NOT -SkipLocal(&quot;::set-env name=var%2Cname%3B3::var,value;3&#xD;&#xA;&quot;,&quot;var,value;3&quot;,&quot;var,name;3&quot;)" time="0.0153" asserts="0" success="True" result="Success" executed="True" />
+                </results>
+              </test-suite>
+            </results>
+          </test-suite>
+          <test-suite type="TestFixture" name="Add-ActionSecretMask" executed="True" result="Success" success="True" time="0.5383" asserts="0" description="Add-ActionSecretMask">
+            <results>
+              <test-case description="Given a valid -Secret" name="Add-ActionSecretMask.Given a valid -Secret" time="0.007" asserts="0" success="True" result="Success" executed="True" />
+            </results>
+          </test-suite>
+          <test-suite type="TestFixture" name="Add-ActionPath" executed="True" result="Success" success="True" time="0.6386" asserts="0" description="Add-ActionPath">
+            <results>
+              <test-case description="Given a valid -Path and -SkipLocal" name="Add-ActionPath.Given a valid -Path and -SkipLocal" time="0.0171" asserts="0" success="True" result="Success" executed="True" />
+              <test-case description="Given a valid -Path and NOT -SkipLocal" name="Add-ActionPath.Given a valid -Path and NOT -SkipLocal" time="0.0088" asserts="0" success="True" result="Success" executed="True" />
+            </results>
+          </test-suite>
+          <test-suite type="TestFixture" name="Get-ActionInput" executed="True" result="Success" success="True" time="0.8573" asserts="0" description="Get-ActionInput">
+            <results>
+              <test-suite type="ParameterizedTest" name="Get-ActionInput.Given valid -Name" executed="True" result="Success" success="True" time="0.1553" asserts="0" description="Given valid -Name">
+                <results>
+                  <test-case description="Given valid -Name" name="Get-ActionInput.Given valid -Name(System.Collections.Hashtable,&quot;input1&quot;)" time="0.0351" asserts="0" success="True" result="Success" executed="True" />
+                  <test-case description="Given valid -Name" name="Get-ActionInput.Given valid -Name(System.Collections.Hashtable,&quot;INPUT1&quot;)" time="0.0335" asserts="0" success="True" result="Success" executed="True" />
+                  <test-case description="Given valid -Name" name="Get-ActionInput.Given valid -Name(System.Collections.Hashtable,&quot;Input1&quot;)" time="0.0263" asserts="0" success="True" result="Success" executed="True" />
+                  <test-case description="Given valid -Name" name="Get-ActionInput.Given valid -Name(System.Collections.Hashtable,&quot;input2&quot;)" time="0.0293" asserts="0" success="True" result="Success" executed="True" />
+                  <test-case description="Given valid -Name" name="Get-ActionInput.Given valid -Name(System.Collections.Hashtable,&quot;INPUT2&quot;)" time="0.0151" asserts="0" success="True" result="Success" executed="True" />
+                  <test-case description="Given valid -Name" name="Get-ActionInput.Given valid -Name(System.Collections.Hashtable,&quot;Input2&quot;)" time="0.016" asserts="0" success="True" result="Success" executed="True" />
+                </results>
+              </test-suite>
+            </results>
+          </test-suite>
+          <test-suite type="TestFixture" name="Get-ActionInputs" executed="True" result="Success" success="True" time="1.0074" asserts="0" description="Get-ActionInputs">
+            <results>
+              <test-case description="Given 2 predefined inputs" name="Get-ActionInputs.Given 2 predefined inputs" time="0.0259" asserts="0" success="True" result="Success" executed="True" />
+              <test-suite type="ParameterizedTest" name="Get-ActionInputs.Given 2 predefined inputs, and a -Name in any case" executed="True" result="Success" success="True" time="0.068" asserts="0" description="Given 2 predefined inputs, and a -Name in any case">
+                <results>
+                  <test-case description="Given 2 predefined inputs, and a -Name in any case" name="Get-ActionInputs.Given 2 predefined inputs, and a -Name in any case(System.Collections.Hashtable,&quot;InPut1&quot;)" time="0.023" asserts="0" success="True" result="Success" executed="True" />
+                  <test-case description="Given 2 predefined inputs, and a -Name in any case" name="Get-ActionInputs.Given 2 predefined inputs, and a -Name in any case(System.Collections.Hashtable,&quot;InPut2&quot;)" time="0.019" asserts="0" success="True" result="Success" executed="True" />
+                  <test-case description="Given 2 predefined inputs, and a -Name in any case" name="Get-ActionInputs.Given 2 predefined inputs, and a -Name in any case(System.Collections.Hashtable,&quot;InPut3&quot;)" time="0.0261" asserts="0" success="True" result="Success" executed="True" />
+                </results>
+              </test-suite>
+            </results>
+          </test-suite>
+          <test-suite type="TestFixture" name="Set-ActionOuput" executed="True" result="Success" success="True" time="1.071" asserts="0" description="Set-ActionOuput">
+            <results>
+              <test-case description="Given a valid -Name and -Value" name="Set-ActionOuput.Given a valid -Name and -Value" time="0.0084" asserts="0" success="True" result="Success" executed="True" />
+            </results>
+          </test-suite>
+          <test-suite type="TestFixture" name="Write-ActionDebug" executed="True" result="Success" success="True" time="1.1344" asserts="0" description="Write-ActionDebug">
+            <results>
+              <test-case description="Given a valid -Message" name="Write-ActionDebug.Given a valid -Message" time="0.0053" asserts="0" success="True" result="Success" executed="True" />
+            </results>
+          </test-suite>
+          <test-suite type="TestFixture" name="Write-ActionError" executed="True" result="Success" success="True" time="1.1957" asserts="0" description="Write-ActionError">
+            <results>
+              <test-case description="Given a valid -Message" name="Write-ActionError.Given a valid -Message" time="0.0065" asserts="0" success="True" result="Success" executed="True" />
+            </results>
+          </test-suite>
+          <test-suite type="TestFixture" name="Write-ActionWarning" executed="True" result="Success" success="True" time="1.2759" asserts="0" description="Write-ActionWarning">
+            <results>
+              <test-case description="Given a valid -Message" name="Write-ActionWarning.Given a valid -Message" time="0.021" asserts="0" success="True" result="Success" executed="True" />
+            </results>
+          </test-suite>
+          <test-suite type="TestFixture" name="Write-ActionInfo" executed="True" result="Success" success="True" time="1.342" asserts="0" description="Write-ActionInfo">
+            <results>
+              <test-case description="Given a valid -Message" name="Write-ActionInfo.Given a valid -Message" time="0.008" asserts="0" success="True" result="Success" executed="True" />
+            </results>
+          </test-suite>
+          <test-suite type="TestFixture" name="Enter-ActionOutputGroup" executed="True" result="Success" success="True" time="1.4065" asserts="0" description="Enter-ActionOutputGroup">
+            <results>
+              <test-case description="Given a valid -Name" name="Enter-ActionOutputGroup.Given a valid -Name" time="0.0047" asserts="0" success="True" result="Success" executed="True" />
+            </results>
+          </test-suite>
+          <test-suite type="TestFixture" name="Exit-ActionOutputGroup" executed="True" result="Success" success="True" time="1.4658" asserts="0" description="Exit-ActionOutputGroup">
+            <results>
+              <test-case description="Given everything is peachy" name="Exit-ActionOutputGroup.Given everything is peachy" time="0.0066" asserts="0" success="True" result="Success" executed="True" />
+            </results>
+          </test-suite>
+          <test-suite type="TestFixture" name="Invoke-ActionWithinOutputGroup" executed="True" result="Success" success="True" time="1.5516" asserts="0" description="Invoke-ActionWithinOutputGroup">
+            <results>
+              <test-case description="Given a valid -Name and -ScriptBlock" name="Invoke-ActionWithinOutputGroup.Given a valid -Name and -ScriptBlock" time="0.019" asserts="0" success="True" result="Success" executed="True" />
+            </results>
+          </test-suite>
+        </results>
+      </test-suite>
+    </results>
+  </test-suite>
+</test-results>

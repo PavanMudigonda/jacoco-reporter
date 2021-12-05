@@ -1,0 +1,84 @@
+
+## This is a SAMPLE metadata file for a GitHub Action.  For more info:
+##    https://help.github.com/en/articles/metadata-syntax-for-github-actions
+
+name: jacoco-coverage-reporter
+author: Pavan Mudigonda
+description: |
+  Published JaCoCo format Coverage Report in GitHub Actions as Checksuite.
+
+## Here you describe your *formal* inputs -- those that are
+## documented and can be displayed by the marketplace.
+## You also use these to identify the *required* inputs.
+inputs:
+
+  coverage_results_path:
+    description: |
+      Path to the JaCoCo coverage results file which will be used to generate
+      a report. The only coverage results format supported is the
+      JaCoCo XML schema.
+    required: true
+
+  output_level:
+    description: |
+      Optionally specify the level of output detail for the test results.
+      May be one of: `none`, `Minimal`, `normal`, `detailed`, `diagnostic`
+      The default is `normal`.
+    required: false
+
+  github_token:
+    description: |
+      GITHUB_TOKEN to authenticate against API calls to attach
+      report to Workflow Run.
+
+  skip_check_run:
+    description: |
+      If true, will skip attaching the Tests Result report to
+      the Workflow Run using a Check Run.  Useful if you just
+      want to produce a Gist-based report via the `gist_name`
+      and `gist_token` input parameters.
+
+
+  coverage_paths:
+    description: |
+      Comma-separated list of one or more directories to scan for code 
+      coverage, relative to the root of the project. Will include all .ps1
+      and .psm1 files under these directories recursively.
+    required: false
+
+  coverage_report_name:
+    description: |
+      The name of the code coverage report object that will be attached 
+      to the Workflow Run.  Defaults to the name 
+      `COVERAGE_RESULTS_<datetime>` where `<datetime>` is in the form 
+      `yyyyMMdd_hhmmss`.
+    required: false
+
+  coverage_report_title:
+    description: |
+      The title of the code coverage report that will be embedded in the 
+      report itself, which defaults to the same as the 
+      `code_coverage_report_name` input.
+    required: false
+
+
+## Here you describe your *formal* outputs.
+outputs:
+
+  result_value:
+    description: |
+      A single string indicating the final result such as
+      `Failed` or `Passed`.
+  
+  coverage_percentage:
+    description: Coverage Percentage
+
+branding:
+  color: purple
+  icon: check-circle
+
+## Even though the Action logic may be implemented
+## in PWSH, we still need a NodeJS entry point
+runs:
+  using: node12
+  main: _init/index.js

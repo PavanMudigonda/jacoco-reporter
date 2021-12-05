@@ -1,0 +1,220 @@
+
+name: test-action
+
+on:
+  push:
+  release:
+    types: published
+
+jobs:
+
+  run-tests:
+    runs-on: ubuntu-latest
+    steps:
+
+      - name: checkout
+        uses: actions/checkout@v1
+
+      - name: use this action
+        id: testAction0
+        uses: ./
+        with:
+          include_paths: tests
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: dump results
+        shell: pwsh
+        run: |
+          ipmo GitHubActions
+
+          $test_results_path = '${{ steps.testAction0.outputs.test_results_path }}'
+          $error_message     = '${{ steps.testAction0.outputs.error_message }}'
+          $error_clixml_path = '${{ steps.testAction0.outputs.error_clixml_path }}'
+
+          $result_clixml_path = '${{ steps.testAction0.outputs.result_clixml_path }}'
+          $result_value       = '${{ steps.testAction0.outputs.result_value }}'
+          $total_count        = '${{ steps.testAction0.outputs.total_count }}'
+          $passed_count       = '${{ steps.testAction0.outputs.passed_count }}'
+          $failed_count       = '${{ steps.testAction0.outputs.failed_count }}'
+
+          Write-ActionInfo "Found these outputs from [testAction0]:"
+          Write-ActionInfo "  * test_results_path  = $test_results_path"
+          Write-ActionInfo "  * error_message      = $error_message"
+          Write-ActionInfo "  * error_clixml_path  = $error_clixml_path"
+          Write-ActionInfo "  * result_clixml_path = $result_clixml_path"
+          Write-ActionInfo "  * result_value       = $result_value"
+          Write-ActionInfo "  * total_count        = $total_count"
+          Write-ActionInfo "  * passed_count       = $passed_count"
+          Write-ActionInfo "  * failed_count       = $failed_count"
+
+          if ($error_clixml_path) {
+            $er = Import-Clixml -Path $error_clixml_path
+            Write-ActionInfo "Loaded up the ErrorRecord:"
+            $er
+            $er.Exception
+          }
+
+          if ($result_clixml_path) {
+            $pr = Import-Clixml -Path $result_clixml_path
+            Write-ActionInfo "Loaded up the Pester Result:"
+            $pr
+          }
+
+      - name: use this action, but smaller
+        id: testAction1
+        uses: ./
+        with:
+          include_paths: tests/GitHubActions_subset.ps1
+          report_name: SmallTest, Результаты тестирования
+          report_title: Tests, But Smaller, Результаты тестирования
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: dump results, but smaller
+        shell: pwsh
+        run: |
+          ipmo GitHubActions
+
+          $test_results_path = '${{ steps.testAction1.outputs.test_results_path }}'
+          $error_message     = '${{ steps.testAction1.outputs.error_message }}'
+          $error_clixml_path = '${{ steps.testAction1.outputs.error_clixml_path }}'
+
+          $result_clixml_path = '${{ steps.testAction1.outputs.result_clixml_path }}'
+          $result_value       = '${{ steps.testAction1.outputs.result_value }}'
+          $total_count        = '${{ steps.testAction1.outputs.total_count }}'
+          $passed_count       = '${{ steps.testAction1.outputs.passed_count }}'
+          $failed_count       = '${{ steps.testAction1.outputs.failed_count }}'
+
+          Write-ActionInfo "Found these outputs from [testAction1]:"
+          Write-ActionInfo "  * test_results_path  = $test_results_path"
+          Write-ActionInfo "  * error_message      = $error_message"
+          Write-ActionInfo "  * error_clixml_path  = $error_clixml_path"
+          Write-ActionInfo "  * result_clixml_path = $result_clixml_path"
+          Write-ActionInfo "  * result_value       = $result_value"
+          Write-ActionInfo "  * total_count        = $total_count"
+          Write-ActionInfo "  * passed_count       = $passed_count"
+          Write-ActionInfo "  * failed_count       = $failed_count"
+
+          if ($error_clixml_path) {
+            $er = Import-Clixml -Path $error_clixml_path
+            Write-ActionInfo "Loaded up the ErrorRecord:"
+            $er
+            $er.Exception
+          }
+
+          if ($result_clixml_path) {
+            $pr = Import-Clixml -Path $result_clixml_path
+            Write-ActionInfo "Loaded up the Pester Result:"
+            $pr
+          }
+
+      - name: use this action. again
+        id: testAction2
+        uses: ./
+        with:
+          include_paths: tests
+          full_names_filters: "*Add-ActionPath*,*Get-ActionInput*"
+          report_name: TestSubset
+          report_title: Subset of Tests
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: copy test results
+        shell: pwsh
+        run: |
+          mkdir copy-of-tests
+          cp _TMP/* copy-of-tests
+
+      - name: use this action, yet again
+        id: testAction3
+        uses: ./
+        with:
+          test_results_path: copy-of-tests/test-results.nunit.xml
+          report_name: TestSubsetCopy
+          report_title: Copy of Subset of Tests
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+      
+      - name: use this action, for Gist report
+        id: testAction4
+        uses: ./
+        with:
+          report_name: Small Set of Tests
+          gist_name: pester-tests-report_GHAction_test1.md
+          report_title: Subset of Tests
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          gist_token: ${{ secrets.GIST_TOKEN }}
+          gist_badge_label: Tests %ExecutedAt%
+
+      - name: dump results, again
+        shell: pwsh
+        run: |
+          ipmo GitHubActions
+
+          $test_results_path = '${{ steps.testAction2.outputs.test_results_path }}'
+          $error_message     = '${{ steps.testAction2.outputs.error_message }}'
+          $error_clixml_path = '${{ steps.testAction2.outputs.error_clixml_path }}'
+
+          $result_clixml_path = '${{ steps.testAction2.outputs.result_clixml_path }}'
+          $result_value       = '${{ steps.testAction2.outputs.result_value }}'
+          $total_count        = '${{ steps.testAction2.outputs.total_count }}'
+          $passed_count       = '${{ steps.testAction2.outputs.passed_count }}'
+          $failed_count       = '${{ steps.testAction2.outputs.failed_count }}'
+
+          Write-ActionInfo "Found these outputs from [testAction2]:"
+          Write-ActionInfo "  * test_results_path  = $test_results_path"
+          Write-ActionInfo "  * error_message      = $error_message"
+          Write-ActionInfo "  * error_clixml_path  = $error_clixml_path"
+          Write-ActionInfo "  * result_clixml_path = $result_clixml_path"
+          Write-ActionInfo "  * result_value       = $result_value"
+          Write-ActionInfo "  * total_count        = $total_count"
+          Write-ActionInfo "  * passed_count       = $passed_count"
+          Write-ActionInfo "  * failed_count       = $failed_count"
+
+          if ($error_clixml_path) {
+            $er = Import-Clixml -Path $error_clixml_path
+            Write-ActionInfo "Loaded up the ErrorRecord:"
+            $er
+            $er.Exception
+          }
+
+          if ($result_clixml_path) {
+            $pr = Import-Clixml -Path $result_clixml_path
+            Write-ActionInfo "Loaded up the Pester Result:"
+            $pr
+          }
+
+      - name: dump results, yet again
+        shell: pwsh
+        run: |
+          ipmo GitHubActions
+
+          $test_results_path = '${{ steps.testAction3.outputs.test_results_path }}'
+          $error_message     = '${{ steps.testAction3.outputs.error_message }}'
+          $error_clixml_path = '${{ steps.testAction3.outputs.error_clixml_path }}'
+
+          $result_clixml_path = '${{ steps.testAction3.outputs.result_clixml_path }}'
+          $result_value       = '${{ steps.testAction3.outputs.result_value }}'
+          $total_count        = '${{ steps.testAction3.outputs.total_count }}'
+          $passed_count       = '${{ steps.testAction3.outputs.passed_count }}'
+          $failed_count       = '${{ steps.testAction3.outputs.failed_count }}'
+
+          Write-ActionInfo "Found these outputs from [testAction3]:"
+          Write-ActionInfo "  * test_results_path  = $test_results_path"
+          Write-ActionInfo "  * error_message      = $error_message"
+          Write-ActionInfo "  * error_clixml_path  = $error_clixml_path"
+          Write-ActionInfo "  * result_clixml_path = $result_clixml_path"
+          Write-ActionInfo "  * result_value       = $result_value"
+          Write-ActionInfo "  * total_count        = $total_count"
+          Write-ActionInfo "  * passed_count       = $passed_count"
+          Write-ActionInfo "  * failed_count       = $failed_count"
+
+          if ($error_clixml_path) {
+            $er = Import-Clixml -Path $error_clixml_path
+            Write-ActionInfo "Loaded up the ErrorRecord:"
+            $er
+            $er.Exception
+          }
+
+          if ($result_clixml_path) {
+            $pr = Import-Clixml -Path $result_clixml_path
+            Write-ActionInfo "Loaded up the Pester Result:"
+            $pr
+          }
