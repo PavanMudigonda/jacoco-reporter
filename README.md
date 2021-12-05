@@ -38,6 +38,7 @@ This Action defines the following formal inputs.
 | **`coverage_results_path`**  | false | Path to the JaCoCo Code Coverage file which will be used to generate a report.  
 | **`coverage_report_name`** | false | The name of the code coverage report object that will be attached to the Workflow Run.  Defaults to the name `COVERAGE_RESULTS_<datetime>` where `<datetime>` is in the form `yyyyMMdd_hhmmss`.
 | **`coverage_report_title`** | false | The title of the code coverage report that will be embedded in the report itself, which defaults to the same as the `code_coverage_report_name` input.
+|**`github_token`** | false | Input the GITHUB TOKEN Or Personal Access Token you would like to use.
 
 ### PowerShell GitHub Action
 
