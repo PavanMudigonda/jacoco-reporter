@@ -30,4 +30,4 @@ foreach ($line in $mdData) {
     }
 }
 
-Set-Content -Value $outputData -Path $mdFile
+Set-Content -Value $outputData -Path $coverage_report_path
