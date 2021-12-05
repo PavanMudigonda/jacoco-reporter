@@ -1,7 +1,11 @@
 
-$mdData = Get-Content -Path $coverage_report_path
-$coverageSummaryData = [System.IO.File]::ReadAllText($coverage_report_path)
-Write-ActionInfo $coverageSummaryData
+[CmdletBinding()]
+param(
+    [Parameter(Mandatory)]
+    [string]$mdFile
+)
+
+$mdData = Get-Content -Path $mdFile
 
 $outputData = @()
 foreach ($line in $mdData) {
@@ -30,4 +34,4 @@ foreach ($line in $mdData) {
     }
 }
 
-Set-Content -Value $outputData -Path $coverage_report_path
+Set-Content -Value $outputData -Path $mdFile
