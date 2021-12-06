@@ -2,7 +2,7 @@
 ## This is a SAMPLE metadata file for a GitHub Action.  For more info:
 ##    https://help.github.com/en/articles/metadata-syntax-for-github-actions
 
-name: jacoco-action
+name: jacoco-reporter
 author: Pavan Mudigonda
 description: |
   Published JaCoCo format Coverage Report in GitHub Actions as Checksuite.
