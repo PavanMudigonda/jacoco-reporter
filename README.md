@@ -1,14 +1,16 @@
 # JaCoCo Code Coverage Reporter
 
 GitHub Action to Publish JaCoCo Format Code Coverage XML and attach it
-to the Workflow Run as a Check Run.
+to the Workflow Run as a Check Run. You can even set threshold coverage percentage and fail the action.
+
+Note:- The scope of this project is limited to Report and Quality Gate. Any ideas are welcome.
 
 ## Samples
 
 
 This Action allows you to specify your JaCoCo Code Coverage XML Path, and then
 generate a markdown report from the test results and then it attaches it
-to the Workflow Run as a Check Run.
+to the Workflow Run as a Check Run. You can even set threshold coverage percentage and fail the action.
 
 Here's a quick example of how to use this action in your own GitHub Workflows.
 
