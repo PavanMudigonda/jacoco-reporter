@@ -28,6 +28,8 @@ $inputs = @{
     coverage_results_path = Get-ActionInput coverage_results_path -Required
     github_token       = Get-ActionInput github_token -Required
     skip_check_run     = Get-ActionInput skip_check_run
+    minimum_coverage   = Get-ActionInput minimum_coverage
+    fail_below_threshold = Get-ActionInput fail_below_threshold
 }
 
 $test_results_dir = Join-Path $PWD _TMP
@@ -110,7 +112,7 @@ function Publish-ToCheckRun {
     Invoke-WebRequest -Headers $hdr $url -Method Post -Body ($bdy | ConvertTo-Json)
 }
 
-if ($inputs.skip_check_run -ne $true) 
+if ($inputs.skip_check_run -ne $true)
     {
         Write-ActionInfo "Publishing Report to GH Workflow"    
         $coverage_results_path = $inputs.coverage_results_path
@@ -129,8 +131,23 @@ if ($inputs.skip_check_run -ne $true)
             }
         $coveragePercentageString = "$coveragePercentage%"
         Write-Output $coveragePercentageString
+        Set-ActionOutput -Name coveragePercentage -Value $coveragePercentage
+        $script:coverage_value = $coveragePercentage
         Set-ActionOutput -Name coverage_results_path -Value $coverage_results_path
         Build-CoverageReport
         $coverageSummaryData = [System.IO.File]::ReadAllText($coverage_report_path)
         Publish-ToCheckRun -ReportData $coverageSummaryData -ReportName $coverage_report_name -ReportTitle $coverage_report_title
     }
+
+if ($inputs.fail_below_threshold) {
+        Write-ActionInfo "  * fail_below_threshold: true"
+    }
+    
+if ($coverage_value.coveragePercentage -lt $inputs.minimum_coverage)) {
+        $script:stepShouldFail = $true
+    }
+
+if ($stepShouldFail) {
+    Write-ActionInfo "Thowing error as Code Coverage is less than "minimum_coverage" is not met and 'fail_below_threshold' was true."
+    throw "Code Coverage is less than Minium Code Coverage Required"
+}
