@@ -26,6 +26,8 @@ jobs:
           coverage_report_title: JaCoCo
           github_token: ${{ secrets.GITHUB_TOKEN }}
           skip_check_run: false
+          minimum_coverage: 80
+          fail_below_threshold: true
 ```
 
 
@@ -39,6 +41,9 @@ This Action defines the following formal inputs.
 | **`coverage_report_name`** | false | The name of the code coverage report object that will be attached to the Workflow Run.  Defaults to the name `COVERAGE_RESULTS_<datetime>` where `<datetime>` is in the form `yyyyMMdd_hhmmss`.
 | **`coverage_report_title`** | false | The title of the code coverage report that will be embedded in the report itself, which defaults to the same as the `code_coverage_report_name` input.
 |**`github_token`** | true | Input the GITHUB TOKEN Or Personal Access Token you would like to use.
+|**`minimum_coverage`** | false | Input the minimum code coverage recommended.
+|**`fail_below_threshold`** | false | Set True to fail the action and False to let it pass.
+
 
 ### PowerShell GitHub Action
 
