@@ -139,11 +139,11 @@ if ($inputs.skip_check_run -ne $true)
         Publish-ToCheckRun -ReportData $coverageSummaryData -ReportName $coverage_report_name -ReportTitle $coverage_report_title
     }
 
-if ($inputs.fail_below_threshold) {
+if ($inputs.fail_below_threshold -eq "true") {
         Write-ActionInfo "  * fail_below_threshold: true"
     }
     
-if ($coverage_value.coveragePercentage -lt $inputs.minimum_coverage -and $inputs.fail_below_threshold) {
+if ($coverage_value.coveragePercentage -lt $inputs.minimum_coverage -and $inputs.fail_below_threshold -eq "true") {
         $script:stepShouldFail = $true
     }
 
