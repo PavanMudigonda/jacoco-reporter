@@ -30,7 +30,7 @@
 <xsl:variable name="overallPercentage">
     <xsl:choose>
         <xsl:when test="/report/counter[@type='LINE']/@missed = 0">100</xsl:when>
-        <xsl:otherwise><xsl:value-of select="format-number((/report/counter[@type='LINE']/@covered) div ( (/report/counter[@type='LINE']/@covered)+(/report/counter[@type='LINE']/@missed) ) * 100),'#.##')" /></xsl:otherwise>
+        <xsl:otherwise><xsl:value-of select="format-number(((/report/counter[@type='LINE']/@covered) div ( (/report/counter[@type='LINE']/@covered)+(/report/counter[@type='LINE']/@missed) ) * 100),'#.##')" /></xsl:otherwise>
     </xsl:choose>
 </xsl:variable>
       
