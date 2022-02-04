@@ -18,7 +18,7 @@ jobs:
         id: testAction1
         uses: ./
         with:
-          coverage_results_path: jacoco-report/test.xml
+          coverage_results_path: jacoco-report/example.jacoco.xml
           coverage_report_name: Code Coverage Report
           coverage_report_title: JaCoCo
           github_token: ${{ secrets.GITHUB_TOKEN }}
