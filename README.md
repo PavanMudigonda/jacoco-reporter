@@ -48,7 +48,7 @@ This Action defines the following formal inputs.
 
 ### Sample Screenshot
 
-![Sample](https://user-images.githubusercontent.com/29324338/152469667-b83acd9f-33d0-4e3f-9e5d-440a0935ab50.jpeg)
+![Sample1](https://user-images.githubusercontent.com/29324338/152469764-31a724d2-2419-4d3b-974f-e58b3d256aa1.jpeg)
 
 ### PowerShell GitHub Action
 
