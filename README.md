@@ -46,6 +46,10 @@ This Action defines the following formal inputs.
 |**`minimum_coverage`** | false | Input the minimum code coverage recommended.
 |**`fail_below_threshold`** | false | Set True to fail the action and False to let it pass.
 
+### Sample Screenshot
+
+![image0](https://user-images.githubusercontent.com/29324338/152468239-81ef359d-f815-495b-8a5b-66ddf65cafe3.jpeg)
+
 
 ### PowerShell GitHub Action
 
