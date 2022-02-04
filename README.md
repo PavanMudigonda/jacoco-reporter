@@ -21,7 +21,7 @@ jobs:
     steps:
       - name: JaCoCo Code Coverage Report
         id: jacoco_reporter
-        uses: PavanMudigonda/jacoco-reporter@v1.7
+        uses: PavanMudigonda/jacoco-reporter@v2.1
         with:
           coverage_results_path: jacoco-report/test.xml
           coverage_report_name: Code Coverage Report
