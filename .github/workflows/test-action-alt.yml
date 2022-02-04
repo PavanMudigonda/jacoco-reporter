@@ -15,8 +15,7 @@ jobs:
       - name: checkout
         uses: actions/checkout@v2
       - name: use this action, with existing test results
-        id: testAction1
-        uses: ./
+        uses: PavanMudigonda/jacoco-reporter@v2.2
         with:
           coverage_results_path: jacoco-report/example.jacoco.xml
           coverage_report_name: Code Coverage Report
