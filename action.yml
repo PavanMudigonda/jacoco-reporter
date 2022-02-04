@@ -5,7 +5,7 @@
 name: jacoco-reporter
 author: Pavan Mudigonda
 description: |
-  Publishes JaCoCo format Coverage Report in GitHub Actions as Checksuite and enforce Code Coverage Quality Gate.
+  Publishes JaCoCo format Coverage Report in GitHub Actions as Checksuite and enforces Code Coverage Quality Gate.
 
 ## Here you describe your *formal* inputs -- those that are
 ## documented and can be displayed by the marketplace.
