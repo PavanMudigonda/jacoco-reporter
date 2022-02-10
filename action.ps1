@@ -149,5 +149,5 @@ if ($coverage_value.coveragePercentage -lt $inputs.minimum_coverage -and $inputs
 
 if ($stepShouldFail) {
     Write-ActionInfo "Thowing error as Code Coverage is less than "minimum_coverage" is not met and 'fail_below_threshold' was true."
-    throw "Code Coverage is less than Minium Code Coverage Required"
+    throw "Code Coverage is less than Minimum Code Coverage Required"
 }
