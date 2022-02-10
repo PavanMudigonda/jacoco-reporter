@@ -55,8 +55,6 @@ This Action defines the following formal inputs.
 
 This Action is implemented as a [PowerShell GitHub Action](https://github.com/ebekker/pwsh-github-action-base).
 
-[![Pavan Mudigonda's GitHub stats](https://github-readme-stats.vercel.app/api?username=PavanMudigonda)](https://github.com/mnpawan/github-readme-stats)
-
 
 <!-- Global site tag (gtag.js) - Google Analytics -->
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-6K64FNRTBE"></script>
