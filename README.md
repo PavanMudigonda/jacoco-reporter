@@ -25,7 +25,7 @@ jobs:
         uses: PavanMudigonda/jacoco-reporter@v2.3
         with:
           coverage_results_path: jacoco-report/test.xml
-          coverage_report_name: Code Coverage Report
+          coverage_report_name: Coverage
           coverage_report_title: JaCoCo
           github_token: ${{ secrets.GITHUB_TOKEN }}
           skip_check_run: false
@@ -51,8 +51,15 @@ This Action defines the following formal inputs.
 
 ![Sample2](https://user-images.githubusercontent.com/29324338/152646744-d6bdc3b7-0c16-414d-923f-0d4feb82ed93.jpg)
 
+### Sample Repo 
+
+https://github.com/PavanMudigonda/jacoco-playground
+
+### Sample Github Actions workflow 
+
+https://github.com/PavanMudigonda/jacoco-playground/blob/main/.github/workflows/coverage.yml
+
+
 ### PowerShell GitHub Action
 
 This Action is implemented as a [PowerShell GitHub Action](https://github.com/ebekker/pwsh-github-action-base).
-
-
