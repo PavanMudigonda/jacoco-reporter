@@ -49,7 +49,7 @@ This Action defines the following formal inputs.
 
 ### Sample Screenshot
 
-![Sample2](https://user-images.githubusercontent.com/29324338/152646744-d6bdc3b7-0c16-414d-923f-0d4feb82ed93.jpg)
+![image](https://user-images.githubusercontent.com/29324338/155446462-023a310a-c353-4a4c-9b3c-d25e7862ee74.png)
 
 ### Sample Repo 
 
