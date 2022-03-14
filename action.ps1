@@ -143,7 +143,7 @@ if ($inputs.fail_below_threshold -eq "true") {
         Write-ActionInfo "  * fail_below_threshold: true"
     }
     
-if ($coverage_value.coveragePercentage -lt $inputs.minimum_coverage -and $inputs.fail_below_threshold -eq "true") {
+if ($coverage_value -lt $inputs.minimum_coverage -and $inputs.fail_below_threshold -eq "true") {
         $script:stepShouldFail = $true
     }
 
