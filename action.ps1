@@ -30,7 +30,7 @@ $inputs = @{
     skip_check_run     = Get-ActionInput skip_check_run
     minimum_coverage   = Get-ActionInput minimum_coverage
     fail_below_threshold = Get-ActionInput fail_below_threshold
-    upload_coverage_report_as_artifact     = Get-ActionInput upload_coverage_report_as_artifact
+    publish_only_summary = Get-ActionInput publish_only_summary
 }
 
 $test_results_dir = Join-Path $PWD _TMP
