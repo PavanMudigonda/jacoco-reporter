@@ -30,6 +30,7 @@ $inputs = @{
     skip_check_run     = Get-ActionInput skip_check_run
     minimum_coverage   = Get-ActionInput minimum_coverage
     fail_below_threshold = Get-ActionInput fail_below_threshold
+    publish_only_summary = Get-ActionInput publish_only_summary
 }
 
 $test_results_dir = Join-Path $PWD _TMP
@@ -42,6 +43,7 @@ function Build-CoverageReport {
     Write-ActionInfo "Building human-readable code-coverage report"
     $script:coverage_report_name = $inputs.coverage_report_name
     $script:coverage_report_title = $inputs.coverage_report_title
+    $script:publish_only_summary = $inputs.publish_only_summary
 
     if (-not $script:coverage_report_name) {
         $script:coverage_report_name = "COVERAGE_RESULTS_$([datetime]::Now.ToString('yyyyMMdd_hhmmss'))"
@@ -49,17 +51,29 @@ function Build-CoverageReport {
     if (-not $coverage_report_title) {
         $script:coverage_report_title = $report_name
     }
-
-    $script:coverage_report_path = Join-Path $test_results_dir coverage-results.md
-    & "$PSScriptRoot/jacoco-report/jacocoxml2md.ps1" -Verbose `
-        -xmlFile $script:coverage_results_path `
-        -mdFile $script:coverage_report_path -xslParams @{
-            reportTitle = $script:coverage_report_title
-        }
-
-    & "$PSScriptRoot/jacoco-report/embedmissedlines.ps1" -mdFile $script:coverage_report_path
+    
+    if (-not $script:publish_only_summary)
+    {
+        $script:coverage_report_path = Join-Path $test_results_dir coverage-results.md
+        & "$PSScriptRoot/jacoco-report/jacocoxml2md.ps1" -Verbose `
+            -xmlFile $script:coverage_results_path `
+            -mdFile $script:coverage_report_path -xslParams @{
+                reportTitle = $script:coverage_report_title
+            }
+            -summaryOnly $script:coverage_results_path
+    
+        & "$PSScriptRoot/jacoco-report/embedmissedlines.ps1" -mdFile $script:coverage_report_path
+    }
+    else {
+        $script:coverage_report_path = Join-Path $test_results_dir coverage-results.md
+        & "$PSScriptRoot/jacoco-report/jacocoxmlsummary2md.ps1" -Verbose `
+            -xmlFile $script:coverage_results_path `
+            -mdFile $script:coverage_report_path -xslParams @{
+                reportTitle = $script:coverage_report_title
+            }
+            -summaryOnly $script:coverage_results_path
+    }
 }
-
 
 function Publish-ToCheckRun {
     param(
