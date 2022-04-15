@@ -60,8 +60,17 @@ This Action defines the following formal inputs.
 |**`skip_check_run`** | false | If true, will skip attaching the Coverage Result report to the Workflow Run using a Check Run. Useful if your report has 65k characters that is not accepted by Github REST and GraphQL APIs
 |**`publish_only_summary`** | false | If true, will publish only a summary table of the Coverage Result report to the Workflow Run using a Check Run. Useful if your full coverage report has 65k characters that is not accepted by Github REST and GraphQL APIs
 
+### Outputs
 
+This Action defines the following formal outputs.
 
+| Name | Description
+|-|-|
+| **`coverage_percentage`** | Coverage Percentage
+| **`covered_lines`** | Total Covered Lines
+| **`missed_lines`** | Total missed Lines
+| **`total_lines`** | Total Code Lines
+| **`coverage_results_path`** | Path to the code coverage results file in JaCoCo XML format.
 
 ### Sample Screenshot (Full Coverage Report): publish_only_summary: false
 
