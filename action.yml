@@ -68,8 +68,14 @@ inputs:
   fail_below_threshold:
     description: 'Fail the action when the minimum coverage was not met.'
     required: false
-    default: false
     
+  publish_only_summary:
+    description: |
+      If true, will skip attaching the Tests Result report to the 
+      Workflow Run using a Check Run. Useful if your report has 65k 
+      characters that is not accepted by Github REST and GraphQL APIs
+    required: false
+
 ## Here you describe your *formal* outputs.
 outputs:
 
