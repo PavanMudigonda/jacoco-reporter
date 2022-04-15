@@ -149,6 +149,11 @@ if ($inputs.skip_check_run -ne $true)
         Build-CoverageReport
         $coverageSummaryData = [System.IO.File]::ReadAllText($coverage_report_path)
         Publish-ToCheckRun -ReportData $coverageSummaryData -ReportName $coverage_report_name -ReportTitle $coverage_report_title
+        Set-ActionOutput -Name coverage_percentage -Value ($coveragePercentage)
+        Set-ActionOutput -Name covered_lines -Value ($coveredLines)
+        Set-ActionOutput -Name missed_lines -Value ($missedLines)
+        Set-ActionOutput -Name total_lines -Value ($coveredLines+$missedLines)
+        Set-ActionOutput -Name coverage_results_path -Value ($script:coverage_report_path)
     }
 
 if ($inputs.fail_below_threshold -eq "true") {
