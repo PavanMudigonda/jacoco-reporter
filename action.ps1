@@ -52,7 +52,7 @@ function Build-CoverageReport {
         $script:coverage_report_title = $report_name
     }
     
-    if (-not $script:publish_only_summary)
+    if ($inputs.publish_only_summary -ne "true")
     {
         $script:coverage_report_path = Join-Path $test_results_dir coverage-results.md
         & "$PSScriptRoot/jacoco-report/jacocoxml2md.ps1" -Verbose `
