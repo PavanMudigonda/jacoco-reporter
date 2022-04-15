@@ -30,7 +30,8 @@ jobs:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           skip_check_run: false
           minimum_coverage: 80
-          fail_below_threshold: true
+          fail_below_threshold: false
+          publish_only_summary: false
 ```
 
 
