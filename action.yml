@@ -78,14 +78,18 @@ inputs:
 
 ## Here you describe your *formal* outputs.
 outputs:
-
-  result_value:
-    description: |
-      A single string indicating the final result such as
-      `Failed` or `Passed`.
   
   coverage_percentage:
     description: Coverage Percentage
+
+  covered_lines:
+    description: Covered Lines
+
+  missed_lines:
+    description: Missed Lines
+
+  total_lines:
+    description: Total Lines
 
 branding:
   color: purple
