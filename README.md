@@ -39,7 +39,7 @@ jobs:
       - name: Upload Code Coverage Artifacts
         uses: actions/upload-artifact@v2
         with:
-          name: code-coverage-report
+          name: code-coverage-report-markdown
           path: */coverage-results.md 
           retention-days: 1  
 ```
