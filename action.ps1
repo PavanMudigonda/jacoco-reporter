@@ -60,7 +60,6 @@ function Build-CoverageReport {
             -mdFile $script:coverage_report_path -xslParams @{
                 reportTitle = $script:coverage_report_title
             }
-            -summaryOnly $script:coverage_results_path
     
         & "$PSScriptRoot/jacoco-report/embedmissedlines.ps1" -mdFile $script:coverage_report_path
     }
@@ -71,7 +70,6 @@ function Build-CoverageReport {
             -mdFile $script:coverage_report_path -xslParams @{
                 reportTitle = $script:coverage_report_title
             }
-            -summaryOnly $script:coverage_results_path
     }
 }
 
