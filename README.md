@@ -20,6 +20,8 @@ jobs:
   test:
     runs-on: ubuntu-latest
     steps:
+    
+      # generates coverage-report.md and publishes as checkrun
       - name: JaCoCo Code Coverage Report
         id: jacoco_reporter
         uses: PavanMudigonda/jacoco-reporter@v2.6
@@ -32,6 +34,14 @@ jobs:
           minimum_coverage: 80
           fail_below_threshold: false
           publish_only_summary: false
+          
+      # uploads the coverage-report.md artifact    
+      - name: Upload Code Coverage Artifacts
+        uses: actions/upload-artifact@v2
+        with:
+          name: code-coverage-report
+          path: coverage-results.md 
+          retention-days: 1  
 ```
 
 
