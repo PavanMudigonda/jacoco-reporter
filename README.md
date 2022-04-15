@@ -51,9 +51,15 @@ This Action defines the following formal inputs.
 |**`publish_only_summary`** | false | If true, will publish only a summary table of the Coverage Result report to the Workflow Run using a Check Run. Useful if your full coverage report has 65k characters that is not accepted by Github REST and GraphQL APIs
 
 
-### Sample Screenshot
+### Sample Screenshot (Full Coverage Report): publish_only_summary: false
 
 ![image](https://user-images.githubusercontent.com/29324338/155446462-023a310a-c353-4a4c-9b3c-d25e7862ee74.png)
+
+
+### Sample Screenshot (Summary Coverage Report): publish_only_summary: true
+
+![image](https://user-images.githubusercontent.com/29324338/163588129-fbc94144-01b5-4af5-81ad-91a1e22a8c5d.png)
+
 
 ### Sample Repo 
 
