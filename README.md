@@ -46,6 +46,8 @@ This Action defines the following formal inputs.
 |**`github_token`** | true | Input the GITHUB TOKEN Or Personal Access Token you would like to use. Recommended to use GitHub auto generated token ${{ secrets.GITHUB_TOKEN }}
 |**`minimum_coverage`** | false | Input the minimum code coverage recommended.
 |**`fail_below_threshold`** | false | Set True to fail the action and False to let it pass.
+|**`skip_check_run`** | false | If true, will skip attaching the Tests Result report to the Workflow Run using a Check Run. Useful if your report has 65k characters that is not accepted by Github REST and GraphQL APIs
+
 
 ### Sample Screenshot
 
