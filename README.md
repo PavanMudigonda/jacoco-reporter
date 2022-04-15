@@ -24,7 +24,7 @@ jobs:
       # generates coverage-report.md and publishes as checkrun
       - name: JaCoCo Code Coverage Report
         id: jacoco_reporter
-        uses: PavanMudigonda/jacoco-reporter@v2.6
+        uses: PavanMudigonda/jacoco-reporter@v2.7
         with:
           coverage_results_path: jacoco-report/test.xml
           coverage_report_name: Coverage
@@ -40,7 +40,7 @@ jobs:
         uses: actions/upload-artifact@v2
         with:
           name: code-coverage-report
-          path: coverage-results.md 
+          path: */coverage-results.md 
           retention-days: 1  
 ```
 
