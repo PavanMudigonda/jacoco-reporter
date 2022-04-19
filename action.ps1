@@ -51,9 +51,7 @@ function Build-CoverageReport {
     if (-not $coverage_report_title) {
         $script:coverage_report_title = $report_name
     }
-    
-    if ($inputs.publish_only_summary -ne "false")
-    {
+
         $script:coverage_report_path = Join-Path $test_results_dir coverage-results.md
         & "$PSScriptRoot/jacoco-report/jacocoxml2md.ps1" -Verbose `
             -xmlFile $script:coverage_results_path `
@@ -62,15 +60,28 @@ function Build-CoverageReport {
             }
     
         & "$PSScriptRoot/jacoco-report/embedmissedlines.ps1" -mdFile $script:coverage_report_path
+    
+}
+
+function Build-CoverageSummaryReport {
+    Write-ActionInfo "Building human-readable code-coverage report"
+    $script:coverage_report_name = $inputs.coverage_report_name
+    $script:coverage_report_title = $inputs.coverage_report_title
+    $script:publish_only_summary = $inputs.publish_only_summary
+
+    if (-not $script:coverage_report_name) {
+        $script:coverage_report_name = "COVERAGE_RESULTS_$([datetime]::Now.ToString('yyyyMMdd_hhmmss'))"
     }
-    else {
+    if (-not $coverage_report_title) {
+        $script:coverage_report_title = $report_name
+    }
+
         $script:coverage_report_path = Join-Path $test_results_dir coverage-results.md
         & "$PSScriptRoot/jacoco-report/jacocoxmlsummary2md.ps1" -Verbose `
             -xmlFile $script:coverage_results_path `
             -mdFile $script:coverage_report_path -xslParams @{
                 reportTitle = $script:coverage_report_title
             }
-    }
 }
 
 function Publish-ToCheckRun {
@@ -146,7 +157,16 @@ if ($inputs.skip_check_run -ne $true)
         Set-ActionOutput -Name coveragePercentage -Value $coveragePercentage
         $script:coverage_value = $coveragePercentage
         Set-ActionOutput -Name coverage_results_path -Value $coverage_results_path
-        Build-CoverageReport
+        
+        if ($inputs.publish_only_summary -eq "false")
+        {
+            Build-CoverageReport
+        }
+        else
+        {
+            Build-CoverageSummaryReport
+        }
+        
         $coverageSummaryData = [System.IO.File]::ReadAllText($coverage_report_path)
         Publish-ToCheckRun -ReportData $coverageSummaryData -ReportName $coverage_report_name -ReportTitle $coverage_report_title
         Set-ActionOutput -Name coverage_percentage -Value ($coveragePercentage)
