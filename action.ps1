@@ -135,46 +135,47 @@ function Publish-ToCheckRun {
     Invoke-WebRequest -Headers $hdr $url -Method Post -Body ($bdy | ConvertTo-Json)
 }
 
-if ($inputs.skip_check_run -ne $true)
+if ($inputs.publish_only_summary -ne $true)
+{
+    Build-CoverageReport
+}
+else
+{
+    Build-CoverageSummaryReport
+}
+
+Write-ActionInfo "Publishing Report to GH Workflow"    
+$coverage_results_path = $inputs.coverage_results_path
+$coverageXmlData = Select-Xml -Path $coverage_results_path -XPath "/report/counter[@type='LINE']"
+$coveredLines = $coverageXmlData.Node.covered
+Write-Host "Covered Lines: $coveredLines"
+$missedLines = $coverageXmlData.Node.missed
+Write-Host "Missed Lines: $missedLines"
+if ($missedLines -eq 0) 
     {
-        Write-ActionInfo "Publishing Report to GH Workflow"    
-        $coverage_results_path = $inputs.coverage_results_path
-        $coverageXmlData = Select-Xml -Path $coverage_results_path -XPath "/report/counter[@type='LINE']"
-        $coveredLines = $coverageXmlData.Node.covered
-        Write-Host "Covered Lines: $coveredLines"
-        $missedLines = $coverageXmlData.Node.missed
-        Write-Host "Missed Lines: $missedLines"
-        if ($missedLines -eq 0) 
-            {
-            $coveragePercentage = 100
-            } 
-        else 
-            {
-            $coveragePercentage = [math]::Round(100 - (($missedLines / $coveredLines) * 100))
-            }
-        $coveragePercentageString = "$coveragePercentage%"
-        Write-Output $coveragePercentageString
-        Set-ActionOutput -Name coveragePercentage -Value $coveragePercentage
-        $script:coverage_value = $coveragePercentage
-        Set-ActionOutput -Name coverage_results_path -Value $coverage_results_path
-        
-        if ($inputs.publish_only_summary -eq "false")
-        {
-            Build-CoverageReport
-        }
-        else
-        {
-            Build-CoverageSummaryReport
-        }
-        
-        $coverageSummaryData = [System.IO.File]::ReadAllText($coverage_report_path)
-        Publish-ToCheckRun -ReportData $coverageSummaryData -ReportName $coverage_report_name -ReportTitle $coverage_report_title
-        Set-ActionOutput -Name coverage_percentage -Value ($coveragePercentage)
-        Set-ActionOutput -Name covered_lines -Value ($coveredLines)
-        Set-ActionOutput -Name missed_lines -Value ($missedLines)
-        Set-ActionOutput -Name total_lines -Value ($coveredLines+$missedLines)
-        Set-ActionOutput -Name coverage_results_path -Value ($script:coverage_report_path)
+    $coveragePercentage = 100
+    } 
+else 
+    {
+    $coveragePercentage = [math]::Round(100 - (($missedLines / $coveredLines) * 100))
     }
+$coveragePercentageString = "$coveragePercentage%"
+Write-Output $coveragePercentageString
+Set-ActionOutput -Name coveragePercentage -Value $coveragePercentage
+$script:coverage_value = $coveragePercentage
+Set-ActionOutput -Name coverage_results_path -Value $coverage_results_path
+$coverageSummaryData = [System.IO.File]::ReadAllText($coverage_report_path)
+Set-ActionOutput -Name coverage_percentage -Value ($coveragePercentage)
+Set-ActionOutput -Name covered_lines -Value ($coveredLines)
+Set-ActionOutput -Name missed_lines -Value ($missedLines)
+Set-ActionOutput -Name total_lines -Value ($coveredLines+$missedLines)
+Set-ActionOutput -Name coverage_results_path -Value ($script:coverage_report_path)
+
+if ($inputs.skip_check_run -ne $true)
+{
+    Publish-ToCheckRun -ReportData $coverageSummaryData -ReportName $coverage_report_name -ReportTitle $coverage_report_title
+
+}
 
 if ($inputs.fail_below_threshold -eq "true") {
         Write-ActionInfo "  * fail_below_threshold: true"
