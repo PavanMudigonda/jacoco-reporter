@@ -38,13 +38,14 @@ Write-ActionInfo "Creating test results space"
 mkdir $test_results_dir
 Write-ActionInfo $test_results_dir
 $script:coverage_report_path = Join-Path $test_results_dir coverage-results.md
+$script:publish_only_summary = $inputs.publish_only_summary
+$script:skip_check_run = $inputs.skip_check_run
 
 function Build-CoverageReport 
 {
     Write-ActionInfo "Building human-readable code-coverage report"
     $script:coverage_report_name = $inputs.coverage_report_name
     $script:coverage_report_title = $inputs.coverage_report_title
-    $script:publish_only_summary = $inputs.publish_only_summary
 
     if (-not $script:coverage_report_name) {
         $script:coverage_report_name = "COVERAGE_RESULTS_$([datetime]::Now.ToString('yyyyMMdd_hhmmss'))"
@@ -69,7 +70,6 @@ function Build-CoverageSummaryReport
     Write-ActionInfo "Building human-readable code-coverage report"
     $script:coverage_report_name = $inputs.coverage_report_name
     $script:coverage_report_title = $inputs.coverage_report_title
-    $script:publish_only_summary = $inputs.publish_only_summary
 
     if (-not $script:coverage_report_name) {
         $script:coverage_report_name = "COVERAGE_RESULTS_$([datetime]::Now.ToString('yyyyMMdd_hhmmss'))"
@@ -78,12 +78,12 @@ function Build-CoverageSummaryReport
         $script:coverage_report_title = $report_name
     }
 
-        $script:coverage_report_path = Join-Path $test_results_dir coverage-results.md
-        & "$PSScriptRoot/jacoco-report/jacocoxmlsummary2md.ps1" -Verbose `
-            -xmlFile $script:coverage_results_path `
-            -mdFile $script:coverage_report_path -xslParams @{
-                reportTitle = $script:coverage_report_title
-            }
+    $script:coverage_report_path = Join-Path $test_results_dir coverage-results.md
+    & "$PSScriptRoot/jacoco-report/jacocoxmlsummary2md.ps1" -Verbose `
+        -xmlFile $script:coverage_results_path `
+        -mdFile $script:coverage_report_path -xslParams @{
+            reportTitle = $script:coverage_report_title
+        }
 }
 
 function Publish-ToCheckRun {
@@ -180,7 +180,11 @@ if ($inputs.skip_check_run -ne "true")
         Publish-ToCheckRun -ReportData $coverageSummaryData -ReportName $coverage_report_name -ReportTitle $coverage_report_title
 
     }
-else 
+elseif ($inputs.skip_check_run -eq "true")
+    {
+        Write-Output "skipping check run"
+    }
+else
     {
         Write-Output "skipping check run"
     }
