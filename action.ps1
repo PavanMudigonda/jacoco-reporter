@@ -175,11 +175,15 @@ Set-ActionOutput -Name missed_lines -Value ($missedLines)
 Set-ActionOutput -Name total_lines -Value ($coveredLines+$missedLines)
 Set-ActionOutput -Name coverage_results_path -Value ($script:coverage_report_path)
 
-if ($inputs.skip_check_run -ne $true)
-{
-    Publish-ToCheckRun -ReportData $coverageSummaryData -ReportName $coverage_report_name -ReportTitle $coverage_report_title
+if ($inputs.skip_check_run -ne "true")
+    {
+        Publish-ToCheckRun -ReportData $coverageSummaryData -ReportName $coverage_report_name -ReportTitle $coverage_report_title
 
-}
+    }
+else 
+    {
+        Write-Output "skipping check run"
+    }
 
 if ($inputs.fail_below_threshold -eq "true") {
         Write-ActionInfo "  * fail_below_threshold: true"
