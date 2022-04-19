@@ -39,7 +39,8 @@ mkdir $test_results_dir
 Write-ActionInfo $test_results_dir
 $script:coverage_report_path = Join-Path $test_results_dir coverage-results.md
 
-function Build-CoverageReport {
+function Build-CoverageReport 
+{
     Write-ActionInfo "Building human-readable code-coverage report"
     $script:coverage_report_name = $inputs.coverage_report_name
     $script:coverage_report_title = $inputs.coverage_report_title
@@ -63,7 +64,8 @@ function Build-CoverageReport {
     
 }
 
-function Build-CoverageSummaryReport {
+function Build-CoverageSummaryReport 
+{
     Write-ActionInfo "Building human-readable code-coverage report"
     $script:coverage_report_name = $inputs.coverage_report_name
     $script:coverage_report_title = $inputs.coverage_report_title
@@ -135,14 +137,16 @@ function Publish-ToCheckRun {
     Invoke-WebRequest -Headers $hdr $url -Method Post -Body ($bdy | ConvertTo-Json)
 }
 
-if ($inputs.publish_only_summary -ne $true)
-{
-    Build-CoverageReport
-}
-else
-{
+if ($inputs.publish_only_summary -eq "true")
+    {
+    Write-ActionInfo "Building summary coverage report"
     Build-CoverageSummaryReport
-}
+    }
+else
+    { 
+    Write-ActionInfo "Building full coverage report"
+    Build-CoverageReport
+    }
 
 Write-ActionInfo "Publishing Report to GH Workflow"    
 $coverage_results_path = $inputs.coverage_results_path
