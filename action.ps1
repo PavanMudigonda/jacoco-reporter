@@ -139,16 +139,6 @@ function Publish-ToCheckRun {
     Invoke-WebRequest -Headers $hdr $url -Method Post -Body ($bdy | ConvertTo-Json)
 }
 
-if ($inputs.publish_only_summary -eq "true")
-    {
-    Write-ActionInfo "Building summary coverage report"
-    Build-CoverageSummaryReport
-    }
-else
-    { 
-    Write-ActionInfo "Building full coverage report"
-    Build-CoverageReport
-    }
 
 Write-ActionInfo "Publishing Report to GH Workflow"    
 $coverage_results_path = $inputs.coverage_results_path
@@ -177,19 +167,27 @@ Set-ActionOutput -Name missed_lines -Value ($missedLines)
 Set-ActionOutput -Name total_lines -Value ($coveredLines+$missedLines)
 Set-ActionOutput -Name coverage_results_path -Value ($script:coverage_report_path)
 
-if ($inputs.skip_check_run -ne "true")
+
+if ($inputs.skip_check_run -ne "true" -and $inputs.publish_only_summary -eq "true" )
     {
+        Build-CoverageSummaryReport
         Publish-ToCheckRun -ReportData $coverageSummaryData -ReportName $coverage_report_name -ReportTitle $coverage_report_title
 
     }
-elseif ($inputs.skip_check_run -eq "true")
+elseif ($inputs.skip_check_run -ne "true" -and $inputs.publish_only_summary -ne "true")
     {
-        Write-Output "skipping check run"
+        Build-CoverageReport
+        Publish-ToCheckRun -ReportData $coverageSummaryData -ReportName $coverage_report_name -ReportTitle $coverage_report_title
+
     }
-else
+elseif ($inputs.skip_check_run -eq "true" -and $inputs.publish_only_summary -eq "true")
     {
-        Write-Output "skipping check run"
+        Build-CoverageSummaryReport
     }
+else {
+    Build-CoverageReport
+
+}   
 
 if ($inputs.fail_below_threshold -eq "true") {
         Write-ActionInfo "  * fail_below_threshold: true"
