@@ -174,7 +174,7 @@ $coveredLines = $coverageXmlData.Node.covered
 Write-Host "Covered Lines: $coveredLines"
 $missedLines = $coverageXmlData.Node.missed
 Write-Host "Missed Lines: $missedLines"
-if ($missedLines -eq 0) 
+if ($missedLines -eq 0 or $coveredLines -eq 0) 
     {
     $coveragePercentage = 100
     } 
