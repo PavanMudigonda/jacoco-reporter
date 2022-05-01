@@ -174,10 +174,14 @@ $coveredLines = $coverageXmlData.Node.covered
 Write-Host "Covered Lines: $coveredLines"
 $missedLines = $coverageXmlData.Node.missed
 Write-Host "Missed Lines: $missedLines"
-if ($missedLines -eq 0 -or $coveredLines -eq 0) 
+if ($missedLines -eq 0 )
     {
     $coveragePercentage = 100
-    } 
+    }
+elseif ($coveredLines -eq 0)
+    {
+    $coveragePercentage = 0
+    }
 else 
     {
     $coveragePercentage = [math]::Round(100 - (($missedLines / $coveredLines) * 100))
