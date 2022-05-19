@@ -88,6 +88,28 @@ function Build-CoverageSummaryReport
         }
 }
 
+function Build-SummaryReport
+{
+    Write-ActionInfo "Building human-readable code-coverage report"
+    $script:coverage_report_name = $inputs.coverage_report_name
+    $script:coverage_report_title = $inputs.coverage_report_title
+    $script:coverage_results_path = $inputs.coverage_results_path
+
+    if (-not $script:coverage_report_name) {
+        $script:coverage_report_name = "COVERAGE_RESULTS_$([datetime]::Now.ToString('yyyyMMdd_hhmmss'))"
+    }
+    if (-not $coverage_report_title) {
+        $script:coverage_report_title = $report_name
+    }
+
+    $script:coverage_report_path = Join-Path $test_results_dir coverage-build-summary.md
+    & "$PSScriptRoot/jacoco-report/buildsummary.ps1" -Verbose `
+        -xmlFile $script:coverage_results_path `
+        -mdFile $script:coverage_report_path -xslParams @{
+            reportTitle = $script:coverage_report_title
+        }
+}
+
 function Publish-ToCheckRun {
     param(
         [string]$reportData,
@@ -149,6 +171,12 @@ if ($inputs.skip_check_run -ne $true -and $inputs.publish_only_summary -eq $true
         $coverageSummaryData = [System.IO.File]::ReadAllText($coverage_report_path)
         
         Publish-ToCheckRun -ReportData $coverageSummaryData -ReportName $coverage_report_name -ReportTitle $coverage_report_title
+        
+        Build-SummaryReport
+        
+        $coverageBuildSummaryData = [System.IO.File]::ReadAllText($coverage_report_path)
+        
+        Set-ActionOutput -Name coverageBuildSummaryData -Value $coverageBuildSummaryData
     }
 elseif ($inputs.skip_check_run -ne $true -and $inputs.publish_only_summary -ne $true )
     {
@@ -158,18 +186,37 @@ elseif ($inputs.skip_check_run -ne $true -and $inputs.publish_only_summary -ne $
         
         Publish-ToCheckRun -ReportData $coverageSummaryData -ReportName $coverage_report_name -ReportTitle $coverage_report_title
         
+        Build-SummaryReport
+        
+        $coverageBuildSummaryData = [System.IO.File]::ReadAllText($coverage_report_path)
+        
+        Set-ActionOutput -Name coverageBuildSummaryData -Value $coverageBuildSummaryData
+        
     }
 elseif ($inputs.skip_check_run -eq $true -and $inputs.publish_only_summary -eq $true )
     {
     
         Build-CoverageSummaryReport
         
+        Build-SummaryReport
+        
+        $coverageBuildSummaryData = [System.IO.File]::ReadAllText($coverage_report_path)
+        
+        Set-ActionOutput -Name coverageBuildSummaryData -Value $coverageBuildSummaryData
+        
     }
 else {
 
         Build-CoverageReport
         
+        Build-SummaryReport
+        
+        $coverageBuildSummaryData = [System.IO.File]::ReadAllText($coverage_report_path)
+        
+        Set-ActionOutput -Name coverageBuildSummaryData -Value $coverageBuildSummaryData
+        
     }
+    
 $coverageXmlData = Select-Xml -Path $coverage_results_path -XPath "/report/counter[@type='LINE']"
 $coveredLines = $coverageXmlData.Node.covered
 Write-Host "Covered Lines: $coveredLines"
