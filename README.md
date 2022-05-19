@@ -34,8 +34,21 @@ jobs:
           minimum_coverage: 80
           fail_below_threshold: false
           publish_only_summary: false
-          
-      # uploads the coverage-report.md artifact    
+
+    # Publish Job Summary (optional). #Temporary solution. will output markdown in to variable in few days in a new release !
+    - name: construct coverage job summary markdown
+      run: |
+        cat > coverage_summary.md <<EOF
+          | Code Coverage Summary                      | Value                                                    |
+          |--------------------------------------------|----------------------------------------------------------|
+          | Code Coverage %                            | ${{ steps.jacoco_reporter.outputs.coverage_percentage }} |
+          | :heavy_check_mark: Number of Lines Covered | ${{ steps.jacoco_reporter.outputs.covered_lines }}       |
+          | :x: Number of Lines Missed                 | ${{ steps.jacoco_reporter.outputs.missed_lines }}        |
+          | Total Number of Lines                      | ${{ steps.jacoco_reporter.outputs.total_lines }}         |
+        EOF
+        cat coverage_summary.md >> $GITHUB_STEP_SUMMARY
+        
+      # uploads the coverage-report.md artifact (optional)
       - name: Upload Code Coverage Artifacts
         uses: actions/upload-artifact@v2
         with:
@@ -80,6 +93,10 @@ This Action defines the following formal outputs.
 ### Sample Screenshot (Summary Coverage Report): publish_only_summary: true
 
 ![image](https://user-images.githubusercontent.com/29324338/163588129-fbc94144-01b5-4af5-81ad-91a1e22a8c5d.png)
+
+## Sample Summary Screenshot
+
+<img width="1127" alt="image" src="https://user-images.githubusercontent.com/86745613/169406925-b1029ccb-ed62-4d6a-aa80-da81eca1601d.png">
 
 
 ### Sample Repo 
