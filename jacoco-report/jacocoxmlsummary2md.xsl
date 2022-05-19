@@ -38,8 +38,8 @@
 | Outcome                 | Value                                                               |
 |-------------------------|---------------------------------------------------------------------|
 | Code Coverage %         | <xsl:value-of select="$overallPercentage" />% Coverage              |
-| Number of Lines Covered | <xsl:value-of select="/report/counter[@type='LINE']/@covered" />    |
-| Number of Lines Missed  | <xsl:value-of select="/report/counter[@type='LINE']/@missed" />     |
+| :heavy_check_mark: Number of Lines Covered | <xsl:value-of select="/report/counter[@type='LINE']/@covered" />    |
+| :x: Number of Lines Missed  | <xsl:value-of select="/report/counter[@type='LINE']/@missed" />     |
 | Total Number of Lines   | <xsl:value-of select="/report/counter[@type='LINE']/@missed + /report/counter[@type='LINE']/@covered" />     |
 
 </xsl:template>
