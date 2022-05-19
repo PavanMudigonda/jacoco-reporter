@@ -70,7 +70,7 @@ This Action defines the following formal outputs.
 | **`covered_lines`** | Total Covered Lines
 | **`missed_lines`** | Total missed Lines
 | **`total_lines`** | Total Code Lines
-| **`coverage_results_path`** | Path to the code coverage results file in markdown format.
+| **`coverage_results_path`** | Path to the code coverage results file in XML format.
 
 ### Sample Screenshot (Full Coverage Report): publish_only_summary: false
 
