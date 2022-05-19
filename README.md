@@ -35,7 +35,8 @@ jobs:
           fail_below_threshold: false
           publish_only_summary: false
 
-    # Publish Job Summary (optional). #Temporary solution. will output markdown in to variable in few days in a new release !
+    # Publish Job Summary (optional). #Temporary solution.
+    # Will output markdown in to variable in few days in a new release !
     - name: construct coverage job summary markdown
       run: |
         cat > coverage_summary.md <<EOF
