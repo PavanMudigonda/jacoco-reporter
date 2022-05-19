@@ -42,9 +42,9 @@ jobs:
           | Code Coverage Summary                      | Value                                                    |
           |--------------------------------------------|----------------------------------------------------------|
           | Code Coverage %                            | ${{ steps.jacoco_reporter.outputs.coverage_percentage }} |
-          | :heavy_check_mark: Number of Lines Covered | ${{ steps.jacoco_reporter.outputs.covered_lines }}       |
-          | :x: Number of Lines Missed                 | ${{ steps.jacoco_reporter.outputs.missed_lines }}        |
-          | Total Number of Lines                      | ${{ steps.jacoco_reporter.outputs.total_lines }}         |
+          | :heavy_check_mark: Lines Covered | ${{ steps.jacoco_reporter.outputs.covered_lines }}       |
+          | :x: Lines Missed                 | ${{ steps.jacoco_reporter.outputs.missed_lines }}        |
+          | Total Lines                      | ${{ steps.jacoco_reporter.outputs.total_lines }}         |
         EOF
         cat coverage_summary.md >> $GITHUB_STEP_SUMMARY
         
