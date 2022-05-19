@@ -38,10 +38,12 @@ Write-ActionInfo "Creating test results space"
 mkdir $test_results_dir
 Write-ActionInfo $test_results_dir
 $script:coverage_report_path = Join-Path $test_results_dir coverage-results.md
+$script:coverage_summary_path = Join-Path $test_results_dir coverage-summary.md
 $script:publish_only_summary = $inputs.publish_only_summary
 $script:skip_check_run = $inputs.skip_check_run
 
-function Build-CoverageReport 
+# Feature 1
+function Build-CoverageReport
 {
     Write-ActionInfo "Building human-readable code-coverage report"
     $script:coverage_report_name = $inputs.coverage_report_name
@@ -61,12 +63,13 @@ function Build-CoverageReport
             -mdFile $script:coverage_report_path -xslParams @{
                 reportTitle = $script:coverage_report_title
             }
-    
+
         & "$PSScriptRoot/jacoco-report/embedmissedlines.ps1" -mdFile $script:coverage_report_path
-    
+
 }
 
-function Build-CoverageSummaryReport 
+Feature# 2 (added to handle 65k chars limitation on Github API scenario)
+function Build-CoverageSummaryReport
 {
     Write-ActionInfo "Building human-readable code-coverage report"
     $script:coverage_report_name = $inputs.coverage_report_name
@@ -88,6 +91,7 @@ function Build-CoverageSummaryReport
         }
 }
 
+#Feature 3. Added to support Github Job Summaries
 function Build-SummaryReport
 {
     Write-ActionInfo "Building human-readable code-coverage report"
@@ -102,10 +106,10 @@ function Build-SummaryReport
         $script:coverage_report_title = $report_name
     }
 
-    $script:coverage_report_path = Join-Path $test_results_dir coverage-build-summary.md
-    & "$PSScriptRoot/jacoco-report/buildsummary.ps1" -Verbose `
+    $script:coverage_summary_path = Join-Path $test_results_dir coverage-summary.md
+    & "$PSScriptRoot/jacoco-report/buildsummary2md.ps1" -Verbose `
         -xmlFile $script:coverage_results_path `
-        -mdFile $script:coverage_report_path -xslParams @{
+        -mdFile $script:coverage_summary_path -xslParams @{
             reportTitle = $script:coverage_report_title
         }
 }
@@ -162,61 +166,61 @@ function Publish-ToCheckRun {
 }
 
 
-Write-ActionInfo "Publishing Report to GH Workflow"    
+Write-ActionInfo "Publishing Report to GH Workflow"
 $coverage_results_path = $inputs.coverage_results_path
 if ($inputs.skip_check_run -ne $true -and $inputs.publish_only_summary -eq $true )
     {
         Build-CoverageSummaryReport
-        
+
         $coverageSummaryData = [System.IO.File]::ReadAllText($coverage_report_path)
-        
+
         Publish-ToCheckRun -ReportData $coverageSummaryData -ReportName $coverage_report_name -ReportTitle $coverage_report_title
-        
+
         Build-SummaryReport
-        
-        $coverageBuildSummaryData = [System.IO.File]::ReadAllText($coverage_report_path)
-        
-        Set-ActionOutput -Name coverageBuildSummaryData -Value $coverageBuildSummaryData
+
+        $coverageBuildSummaryData = [System.IO.File]::ReadAllText($coverage_summary_path)
+
+        Set-ActionOutput -Name coverage_build_summary_data_md -Value $coverageBuildSummaryData
     }
 elseif ($inputs.skip_check_run -ne $true -and $inputs.publish_only_summary -ne $true )
     {
         Build-CoverageReport
-        
+
         $coverageSummaryData = [System.IO.File]::ReadAllText($coverage_report_path)
-        
+
         Publish-ToCheckRun -ReportData $coverageSummaryData -ReportName $coverage_report_name -ReportTitle $coverage_report_title
-        
+
         Build-SummaryReport
-        
-        $coverageBuildSummaryData = [System.IO.File]::ReadAllText($coverage_report_path)
-        
-        Set-ActionOutput -Name coverageBuildSummaryData -Value $coverageBuildSummaryData
-        
+
+        $coverageBuildSummaryData = [System.IO.File]::ReadAllText($coverage_summary_path)
+
+        Set-ActionOutput -Name coverage_build_summary_data_md -Value $coverageBuildSummaryData
+
     }
 elseif ($inputs.skip_check_run -eq $true -and $inputs.publish_only_summary -eq $true )
     {
-    
+
         Build-CoverageSummaryReport
-        
+
         Build-SummaryReport
-        
-        $coverageBuildSummaryData = [System.IO.File]::ReadAllText($coverage_report_path)
-        
-        Set-ActionOutput -Name coverageBuildSummaryData -Value $coverageBuildSummaryData
-        
+
+        $coverageBuildSummaryData = [System.IO.File]::ReadAllText($coverage_summary_path)
+
+        Set-ActionOutput -Name coverage_build_summary_data_md -Value $coverageBuildSummaryData
+
     }
 else {
 
         Build-CoverageReport
-        
+
         Build-SummaryReport
-        
-        $coverageBuildSummaryData = [System.IO.File]::ReadAllText($coverage_report_path)
-        
-        Set-ActionOutput -Name coverageBuildSummaryData -Value $coverageBuildSummaryData
-        
+
+        $coverageBuildSummaryData = [System.IO.File]::ReadAllText($coverage_summary_path)
+
+        Set-ActionOutput -Name coverage_build_summary_data_md -Value $coverageBuildSummaryData
+
     }
-    
+
 $coverageXmlData = Select-Xml -Path $coverage_results_path -XPath "/report/counter[@type='LINE']"
 $coveredLines = $coverageXmlData.Node.covered
 Write-Host "Covered Lines: $coveredLines"
@@ -234,7 +238,7 @@ elseif ($coveredLines -eq 0 -and $missedLines -eq 0)
     {
     $coveragePercentage = 0
     }
-else 
+else
     {
     $coveragePercentage = [math]::Round(100 - (($missedLines / $coveredLines) * 100))
     }
@@ -251,7 +255,7 @@ Set-ActionOutput -Name total_lines -Value ($coveredLines+$missedLines)
 if ($inputs.fail_below_threshold -eq "true") {
         Write-ActionInfo "  * fail_below_threshold: true"
     }
-    
+
 if ($coverage_value -lt $inputs.minimum_coverage -and $inputs.fail_below_threshold -eq "true") {
         $script:stepShouldFail = $true
     }
