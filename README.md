@@ -71,6 +71,8 @@ This Action defines the following formal outputs.
 | **`missed_lines`** | Total missed Lines
 | **`total_lines`** | Total Code Lines
 | **`coverage_results_path`** | Path to the code coverage results file in XML format.
+| **`coverage_build_summary_data_md`** | code coverage summary data mardown variable. Use this variable to append to $GITHUB_STEP_SUMMARY to publish summary.
+
 
 ### Sample Screenshot (Full Coverage Report): publish_only_summary: false
 
