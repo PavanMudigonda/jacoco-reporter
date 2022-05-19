@@ -172,21 +172,21 @@ if ($inputs.skip_check_run -ne $true -and $inputs.publish_only_summary -eq $true
     {
         Build-CoverageSummaryReport
 
-        $coverageSummaryData = [System.IO.File]::ReadAllText($coverage_report_path)
+        $coverageSummaryData = [System.IO.File]::ReadAllText($script:coverage_report_path)
 
         Publish-ToCheckRun -ReportData $coverageSummaryData -ReportName $coverage_report_name -ReportTitle $coverage_report_title
 
-        Set-ActionOutput -Name coverage_build_summary_data_md -Value $coverageSummaryData
+        Set-ActionOutput -Name coverageSummary -Value $coverageSummaryData
     }
 elseif ($inputs.skip_check_run -ne $true -and $inputs.publish_only_summary -ne $true )
     {
         Build-CoverageReport
 
-        $coverageSummaryData = [System.IO.File]::ReadAllText($coverage_report_path)
+        $coverageSummaryData = [System.IO.File]::ReadAllText($script:coverage_report_path)
 
         Publish-ToCheckRun -ReportData $coverageSummaryData -ReportName $coverage_report_name -ReportTitle $coverage_report_title
 
-        Set-ActionOutput -Name coverage_build_summary_data_md -Value $coverageSummaryData
+        Set-ActionOutput -Name coverageSummary -Value $coverageSummaryData
 
     }
 elseif ($inputs.skip_check_run -eq $true -and $inputs.publish_only_summary -eq $true )
@@ -196,9 +196,9 @@ elseif ($inputs.skip_check_run -eq $true -and $inputs.publish_only_summary -eq $
 
         Build-SummaryReport
 
-        $coverage_build_summary_data_md = [System.IO.File]::ReadAllText($coverage_summary_path)
+        $coverageSummary = [System.IO.File]::ReadAllText($script:coverage_summary_path)
 
-        Set-ActionOutput -Name coverage_build_summary_data_md -Value $coverage_build_summary_data_md
+        Set-ActionOutput -Name coverageSummary -Value $coverageSummary
 
     }
 else {
@@ -207,9 +207,9 @@ else {
 
         Build-SummaryReport
 
-        $coverage_build_summary_data_md = [System.IO.File]::ReadAllText($coverage_summary_path)
+        $coverageSummary = [System.IO.File]::ReadAllText($script:coverage_summary_path)
 
-        Set-ActionOutput -Name coverage_build_summary_data_md -Value $coverage_build_summary_data_md
+        Set-ActionOutput -Name coverageSummary -Value $coverageSummary
 
     }
 $coverageXmlData = Select-Xml -Path $coverage_results_path -XPath "/report/counter[@type='LINE']"

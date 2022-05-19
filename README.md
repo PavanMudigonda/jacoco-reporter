@@ -37,7 +37,7 @@ jobs:
       
       # Publish Coverage Job Summary
      - name: Add Coverage Job Summary
-       run: echo  {{ steps.jacoco_reporter.outputs.coverageBuildSummaryData }} >> $GITHUB_STEP_SUMMARY
+       run: cat {{ steps.jacoco_reporter.outputs.coverageBuildSummaryData }} >> $GITHUB_STEP_SUMMARY
           
       # uploads the coverage-report.md artifact    
       - name: Upload Code Coverage Artifacts
@@ -87,7 +87,9 @@ This Action defines the following formal outputs.
 ![image](https://user-images.githubusercontent.com/29324338/163588129-fbc94144-01b5-4af5-81ad-91a1e22a8c5d.png)
 
 
-### Sample Screenshot ()
+### Sample Screenshot (Job Summary)
+
+
 ### Sample Repo 
 
 https://github.com/PavanMudigonda/jacoco-playground
