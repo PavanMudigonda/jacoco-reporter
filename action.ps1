@@ -68,7 +68,7 @@ function Build-CoverageReport
 
 }
 
-Feature# 2 (added to handle 65k chars limitation on Github API scenario)
+#Feature# 2 (added to handle 65k chars limitation on Github API scenario)
 function Build-CoverageSummaryReport
 {
     Write-ActionInfo "Building human-readable code-coverage report"
