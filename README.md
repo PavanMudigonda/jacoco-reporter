@@ -39,12 +39,12 @@ jobs:
     - name: construct coverage job summary markdown
       run: |
         cat > coverage_summary.md <<EOF
-          | Code Coverage Summary            | Value                                                    |
-          |----------------------------------|----------------------------------------------------------|
-          | Code Coverage %                  | ${{ steps.jacoco_reporter.outputs.coverage_percentage }} |
-          | :heavy_check_mark: Lines Covered | ${{ steps.jacoco_reporter.outputs.covered_lines }}       |
-          | :x: Lines Missed                 | ${{ steps.jacoco_reporter.outputs.missed_lines }}        |
-          | Total Lines                      | ${{ steps.jacoco_reporter.outputs.total_lines }}         |
+          | Code Coverage Summary            | Value                                                      |
+          |----------------------------------|------------------------------------------------------------|
+          | Code Coverage %                  | ${{ steps.jacoco_reporter.outputs.coverage_percentage }} % |
+          | :heavy_check_mark: Lines Covered | ${{ steps.jacoco_reporter.outputs.covered_lines }}         |
+          | :x: Lines Missed                 | ${{ steps.jacoco_reporter.outputs.missed_lines }}          |
+          | Total Lines                      | ${{ steps.jacoco_reporter.outputs.total_lines }}           |
         EOF
         cat coverage_summary.md >> $GITHUB_STEP_SUMMARY
         
