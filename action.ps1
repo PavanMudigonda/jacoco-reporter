@@ -149,8 +149,6 @@ if ($inputs.skip_check_run -ne $true -and $inputs.publish_only_summary -eq $true
         $coverageSummaryData = [System.IO.File]::ReadAllText($coverage_report_path)
         
         Publish-ToCheckRun -ReportData $coverageSummaryData -ReportName $coverage_report_name -ReportTitle $coverage_report_title
-
-        Set-ActionOutput -Name GITHUB_STEP_SUMMARY -Value $coverageSummaryData
     }
 elseif ($inputs.skip_check_run -ne $true -and $inputs.publish_only_summary -ne $true )
     {
