@@ -10,9 +10,9 @@
     <xsl:output method="text"/>
     <xsl:strip-space elements="*"/>
 
-    <xsl:param name="reportTitle">
+<!--     <xsl:param name="reportTitle">
         <xsl:value-of select="/report/@name" />
-    </xsl:param>
+    </xsl:param> -->
 
 <!--https://github.com/ikatyang/emoji-cheat-sheet/blob/master/README.md-->
 <!--
@@ -22,8 +22,8 @@
     :white_circle:
     :grey_question:
 -->
-    <xsl:template match="/">
-# Coverage Summary Report: <xsl:value-of select="$reportTitle" />
+<!--     <xsl:template match="/"> -->
+<!-- # Coverage Summary Report: <xsl:value-of select="$reportTitle" /> -->
 
 * <xsl:value-of select="/report/@name" />
 
