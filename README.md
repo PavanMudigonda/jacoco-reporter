@@ -87,7 +87,7 @@ This Action defines the following formal outputs.
 
 ![image](https://user-images.githubusercontent.com/29324338/163588129-fbc94144-01b5-4af5-81ad-91a1e22a8c5d.png)
 
-### Sample Summary Screenshot
+### Sample Build Summary Screenshot
 
 <img width="1127" alt="image" src="https://user-images.githubusercontent.com/86745613/169406925-b1029ccb-ed62-4d6a-aa80-da81eca1601d.png">
 
