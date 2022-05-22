@@ -23,9 +23,9 @@
     :grey_question:
 -->
     <xsl:template match="/">
-# Coverage Report: <xsl:value-of select="$reportTitle" />
+<!-- # Coverage Report: <xsl:value-of select="$reportTitle" />
 
-* <xsl:value-of select="/report/@name" />
+* <xsl:value-of select="/report/@name" /> -->
 
 <xsl:variable name="overallPercentage">
     <xsl:choose>
