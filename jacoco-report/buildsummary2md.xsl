@@ -33,15 +33,13 @@
         <xsl:when test="/report/counter[@type='LINE']/@covered = 0">0</xsl:when>
         <xsl:otherwise><xsl:value-of select="format-number(((/report/counter[@type='LINE']/@covered) div ( (/report/counter[@type='LINE']/@covered)+(/report/counter[@type='LINE']/@missed) ) * 100),'#.##')" /></xsl:otherwise>
     </xsl:choose>
-</xsl:variable>
-      
+</xsl:variable>      
 | Code Coverage Summary   | Value   |
 |-------------------------|---------|
 | Code Coverage %         | <xsl:value-of select="$overallPercentage" />% Coverage |
 | :heavy_check_mark: Number of Lines Covered | <xsl:value-of select="/report/counter[@type='LINE']/@covered" />|
 | :x: Number of Lines Missed  | <xsl:value-of select="/report/counter[@type='LINE']/@missed" />|
-| Total Number of Lines   | <xsl:value-of select="/report/counter[@type='LINE']/@missed + /report/counter[@type='LINE']/@covered" />|
-      
+| Total Number of Lines   | <xsl:value-of select="/report/counter[@type='LINE']/@missed + /report/counter[@type='LINE']/@covered" />      
 </xsl:template>
 
 </xsl:stylesheet>
