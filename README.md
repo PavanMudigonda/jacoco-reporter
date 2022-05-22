@@ -37,7 +37,7 @@ jobs:
       
       # Publish Coverage Job Summary
      - name: Add Coverage Job Summary
-       run: cat "{{ steps.jacoco_reporter.outputs.coverageBuildSummary }}" >> $GITHUB_STEP_SUMMARY
+       run: cat "{{ steps.jacoco_reporter.outputs.coverageSummary }}" >> $GITHUB_STEP_SUMMARY
           
       # uploads the coverage-report.md artifact    
 
