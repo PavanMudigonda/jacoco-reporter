@@ -10,9 +10,9 @@
     <xsl:output method="text"/>
     <xsl:strip-space elements="*"/>
 
-<!--     <xsl:param name="reportTitle">
+    <xsl:param name="reportTitle">
         <xsl:value-of select="/report/@name" />
-    </xsl:param> -->
+    </xsl:param>
 
 <!--https://github.com/ikatyang/emoji-cheat-sheet/blob/master/README.md-->
 <!--
