@@ -22,8 +22,8 @@
     :white_circle:
     :grey_question:
 -->
-<!--     <xsl:template match="/"> -->
-<!-- # Coverage Summary Report: <xsl:value-of select="$reportTitle" /> -->
+    <xsl:template match="/">
+# Coverage Report: <xsl:value-of select="$reportTitle" />
 
 * <xsl:value-of select="/report/@name" />
 
