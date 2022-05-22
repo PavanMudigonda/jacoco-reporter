@@ -89,7 +89,6 @@ This Action defines the following formal outputs.
 
 ### Sample Summary Screenshot
 
-![image](https://user-images.githubusercontent.com/86745613/169704138-67039e44-04e5-44b7-a407-f9791524a9bd.png)
 <img width="1127" alt="image" src="https://user-images.githubusercontent.com/86745613/169406925-b1029ccb-ed62-4d6a-aa80-da81eca1601d.png">
 
 ### Sample Repo 
