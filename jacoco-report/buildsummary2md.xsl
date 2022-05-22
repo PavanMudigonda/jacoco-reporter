@@ -13,20 +13,11 @@
     <xsl:param name="reportTitle">
         <xsl:value-of select="/report/@name" />
     </xsl:param>
-
-<!--https://github.com/ikatyang/emoji-cheat-sheet/blob/master/README.md-->
-<!--
-    :radio_button:
-    :x:
-    
-    :white_circle:
-    :grey_question:
--->
     <xsl:template match="/">
 # Coverage Report: <xsl:value-of select="$reportTitle" />
-
+      
 * <xsl:value-of select="/report/@name" />
-
+      
 <xsl:variable name="overallPercentage">
     <xsl:choose>
         <xsl:when test="/report/counter[@type='LINE']/@missed = 0">100</xsl:when>
@@ -35,13 +26,13 @@
     </xsl:choose>
 </xsl:variable>
       
-| Outcome                 | Value                                                               |
-|-------------------------|---------------------------------------------------------------------|
-| Code Coverage %         | <xsl:value-of select="$overallPercentage" />% Coverage              |
-| :heavy_check_mark: Number of Lines Covered | <xsl:value-of select="/report/counter[@type='LINE']/@covered" />    |
-| :x: Number of Lines Missed  | <xsl:value-of select="/report/counter[@type='LINE']/@missed" />     |
-| Total Number of Lines   | <xsl:value-of select="/report/counter[@type='LINE']/@missed + /report/counter[@type='LINE']/@covered" />     |
-
+| Code Coverage Summary   | Value   |
+|-------------------------|---------|
+| Code Coverage %         | <xsl:value-of select="$overallPercentage" />% Coverage |
+| :heavy_check_mark: Number of Lines Covered | <xsl:value-of select="/report/counter[@type='LINE']/@covered" />|
+| :x: Number of Lines Missed  | <xsl:value-of select="/report/counter[@type='LINE']/@missed" />|
+| Total Number of Lines   | <xsl:value-of select="/report/counter[@type='LINE']/@missed + /report/counter[@type='LINE']/@covered" />|
+      
 </xsl:template>
 
 </xsl:stylesheet>
