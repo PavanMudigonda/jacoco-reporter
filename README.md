@@ -37,10 +37,11 @@ jobs:
       
       # Publish Coverage Job Summary
      - name: Add Coverage Job Summary
-       run: cat {{ steps.jacoco_reporter.outputs.coverageBuildSummaryData }} >> $GITHUB_STEP_SUMMARY
+       run: cat "{{ steps.jacoco_reporter.outputs.coverageBuildSummary }}" >> $GITHUB_STEP_SUMMARY
           
       # uploads the coverage-report.md artifact    
-      - name: Upload Code Coverage Artifacts
+
+     - name: Upload Code Coverage Artifacts
         uses: actions/upload-artifact@v2
         with:
           name: code-coverage-report-markdown
@@ -85,6 +86,10 @@ This Action defines the following formal outputs.
 ### Sample Screenshot (Summary Coverage Report): publish_only_summary: true
 
 ![image](https://user-images.githubusercontent.com/29324338/163588129-fbc94144-01b5-4af5-81ad-91a1e22a8c5d.png)
+
+## Sample Summary Screenshot
+
+<img width="1127" alt="image" src="https://user-images.githubusercontent.com/86745613/169406925-b1029ccb-ed62-4d6a-aa80-da81eca1601d.png">
 
 
 ### Sample Screenshot (Job Summary)
