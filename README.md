@@ -34,30 +34,20 @@ jobs:
           minimum_coverage: 80
           fail_below_threshold: false
           publish_only_summary: false
+      
+      # Publish Coverage Job Summary
+     - name: Add Coverage Job Summary
+       run: cat "{{ steps.jacoco_reporter.outputs.coverageBuildSummary }}" >> $GITHUB_STEP_SUMMARY
+          
+      # uploads the coverage-report.md artifact    
 
-    # Publish Job Summary (optional). #Temporary solution.
-    # Will output markdown in to variable in few days in a new release !
-    - name: construct coverage job summary markdown
-      run: |
-        cat > coverage_summary.md <<EOF
-          | Code Coverage Summary            | Value                                                      |
-          |----------------------------------|------------------------------------------------------------|
-          | Code Coverage %                  | ${{ steps.jacoco_reporter.outputs.coverage_percentage }} % |
-          | :heavy_check_mark: Lines Covered | ${{ steps.jacoco_reporter.outputs.covered_lines }}         |
-          | :x: Lines Missed                 | ${{ steps.jacoco_reporter.outputs.missed_lines }}          |
-          | Total Lines                      | ${{ steps.jacoco_reporter.outputs.total_lines }}           |
-        EOF
-        cat coverage_summary.md >> $GITHUB_STEP_SUMMARY
-        
-      # uploads the coverage-report.md artifact (optional)
-      - name: Upload Code Coverage Artifacts
+     - name: Upload Code Coverage Artifacts
         uses: actions/upload-artifact@v2
         with:
           name: code-coverage-report-markdown
           path: */coverage-results.md 
           retention-days: 1  
 ```
-
 
 ### Inputs
 
@@ -85,6 +75,8 @@ This Action defines the following formal outputs.
 | **`missed_lines`** | Total missed Lines
 | **`total_lines`** | Total Code Lines
 | **`coverage_results_path`** | Path to the code coverage results file in XML format.
+| **`coverage_build_summary_data_md`** | code coverage summary data mardown variable. Use this variable to append to $GITHUB_STEP_SUMMARY to publish summary.
+
 
 ### Sample Screenshot (Full Coverage Report): publish_only_summary: false
 
@@ -100,6 +92,9 @@ This Action defines the following formal outputs.
 <img width="1127" alt="image" src="https://user-images.githubusercontent.com/86745613/169406925-b1029ccb-ed62-4d6a-aa80-da81eca1601d.png">
 
 
+### Sample Screenshot (Job Summary)
+
+
 ### Sample Repo 
 
 https://github.com/PavanMudigonda/jacoco-playground
@@ -107,7 +102,6 @@ https://github.com/PavanMudigonda/jacoco-playground
 ### Sample Github Actions workflow 
 
 https://github.com/PavanMudigonda/jacoco-playground/blob/main/.github/workflows/coverage.yml
-
 
 ### PowerShell GitHub Action
 
