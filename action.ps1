@@ -232,9 +232,9 @@ elseif ($coveredLines -eq 0 -and $missedLines -eq 0)
     }
 else
     {
-    $coveragePercentage = [math]::Round( ($coveredLines / ($coveredLines+$missedLines) ) * 100 )
+        $coveragePercentage = [math]::Round( ($coveredLines / ($coveredLines+$missedLines) ) * 100 )
     }
-$coveragePercentageString = "$coveragePercentage%"
+$coveragePercentageString = "$coveragePercentage" %
 Write-Output $coveragePercentageString
 Set-ActionOutput -Name coveragePercentage -Value $coveragePercentage
 $script:coverage_value = $coveragePercentage
