@@ -233,7 +233,7 @@ elseif ($coveredLines -eq 0 -and $missedLines -eq 0)
     }
 else
     {
-        $coveragePercentage = ($coveredLines / totalLines ) * 100
+        $coveragePercentage = ($coveredLines / $totalLines ) * 100
     }
 
 $coveragePercentageString = "{0:P}" -f ($coveredLines / ($coveredLines+$missedLines))
