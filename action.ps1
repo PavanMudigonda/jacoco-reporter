@@ -241,6 +241,7 @@ else
         $coveragePercentageString = "{0:p2}" -f $coveragePercentage
     }
 
+Set-ActionOutput -Name coveragePercentageString -Value ($coveragePercentageString)
 Set-ActionOutput -Name coveragePercentage -Value ($coveragePercentage)
 Set-ActionOutput -Name coverage_percentage -Value ($coveragePercentage)
 Set-ActionOutput -Name covered_lines -Value ($coveredLines)
