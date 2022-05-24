@@ -234,10 +234,12 @@ else
     {
         $coveragePercentage = [math]::Round( ($coveredLines / ($coveredLines+$missedLines) ) * 100 )
     }
-$coveragePercentageString = "$coveragePercentage" + %
+    $coveragePercentageString = "{0:P}" -f ($coveredLines / ($coveredLines+$missedLines))
+
 Write-Output $coveragePercentageString
-Set-ActionOutput -Name coveragePercentage -Value $coveragePercentage
+Set-ActionOutput -Name coveragePercentageString -Value $coveragePercentageString
 $script:coverage_value = $coveragePercentage
+Set-ActionOutput -Name coveragePercentage -Value $coveragePercentage
 Set-ActionOutput -Name coverage_results_path -Value $coverage_results_path
 Set-ActionOutput -Name coverage_percentage -Value ($coveragePercentage)
 Set-ActionOutput -Name covered_lines -Value ($coveredLines)
