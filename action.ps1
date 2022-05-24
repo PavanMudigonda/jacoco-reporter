@@ -213,10 +213,10 @@ else {
 
     }
 $coverageXmlData = Select-Xml -Path $coverage_results_path -XPath "/report/counter[@type='LINE']"
-$coveredLines = $coverageXmlData.Node.covered
+$coveredLines = [int]$coverageXmlData.Node.covered
 Write-Host "Covered Lines: $coveredLines"
-$missedLines = $coverageXmlData.Node.missed
-$totalLines = $coveredLines+$missedLines
+$missedLines = [int]$coverageXmlData.Node.missed
+$totalLines = [int]($coveredLines+$missedLines)
 Write-Host "Missed Lines: $missedLines"
 Write-Host "Total Lines: $totalLines"
 if ($missedLines -eq 0)
@@ -236,8 +236,9 @@ elseif ($coveredLines -eq 0 -and $missedLines -eq 0)
     }
 else
     {
-        $coveragePercentage = ($coveredLines/$totalLines) * 100
+        $coveragePercentage = [math]::Round( ($coveredLines/($coveredLines+$missedLines) ) * 100 )
         Write-Output "Coverage: $coveragePercentage"
+        $coveragePercentageString = "{2:P}" -f ($coveredLines/($coveredLines+$missedLines))
     }
 
 Set-ActionOutput -Name coveragePercentage -Value ($coveragePercentage)
