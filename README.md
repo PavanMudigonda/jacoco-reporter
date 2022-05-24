@@ -70,7 +70,9 @@ This Action defines the following formal outputs.
 
 | Name | Description
 |-|-|
-| **`coverage_percentage`** | Coverage Percentage
+| **`coverage_percentage`** | Coverage Percentage. Rounded to two decimals.
+| **`coveragePercentage`** | Coverage Percentage. Rounded to two decimals.
+| **`coveragePercentageString`** | Coverage Percentage. Rounded to two decimals with % symbol attached.
 | **`covered_lines`** | Total Covered Lines
 | **`missed_lines`** | Total missed Lines
 | **`total_lines`** | Total Code Lines
