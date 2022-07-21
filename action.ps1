@@ -223,16 +223,19 @@ if ($missedLines -eq 0)
     {
     $coveragePercentage = 100
     Write-Output "Coverage: $coveragePercentage"
+    $coveragePercentageString = "{0:p2}" -f ($coveragePercentage/100)
     }
 elseif ($coveredLines -eq 0)
     {
     $coveragePercentage = 0
     Write-Output "Coverage: $coveragePercentage"
+    $coveragePercentageString = "{0:p2}" -f ($coveragePercentage)
     }
 elseif ($coveredLines -eq 0 -and $missedLines -eq 0)
     {
     $coveragePercentage = 0
     Write-Output "Coverage: $coveragePercentage"
+    $coveragePercentageString = "{0:p2}" -f ($coveragePercentage)
     }
 else
     {
