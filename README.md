@@ -92,13 +92,28 @@ This Action defines the following formal outputs.
 
 <img width="1127" alt="image" src="https://user-images.githubusercontent.com/86745613/169406925-b1029ccb-ed62-4d6a-aa80-da81eca1601d.png">
 
-### Sample Repo 
+### Sample Gradle Build Repo 
 
 https://github.com/PavanMudigonda/jacoco-playground
 
-### Sample Github Actions workflow 
+### Sample Gradle Github Actions workflow 
 
 https://github.com/PavanMudigonda/jacoco-playground/blob/main/.github/workflows/coverage.yml
+
+### Sample Maven Build Repo
+
+https://github.com/PavanMudigonda/java-maven-playground/
+
+### Sample Maven Github Actions workflow  
+
+https://github.com/PavanMudigonda/java-maven-playground/blob/master/.github/workflows/ci.yml
+
+### Sample Maven Build Repo
+
+
+### Sample Maven Github Actions workflow  
+
+
 
 ### PowerShell GitHub Action
 
