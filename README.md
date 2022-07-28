@@ -108,10 +108,10 @@ https://github.com/PavanMudigonda/java-maven-playground/
 
 https://github.com/PavanMudigonda/java-maven-playground/blob/master/.github/workflows/ci.yml
 
-### Sample Maven Build Repo
+### Sample Ant Build Repo
 
 
-### Sample Maven Github Actions workflow  
+### Sample Ant Github Actions workflow  
 
 
 
