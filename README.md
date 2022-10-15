@@ -79,6 +79,18 @@ This Action defines the following formal outputs.
 | **`coverageSummary`** | code coverage summary data mardown variable. Use this variable to append to $GITHUB_STEP_SUMMARY to publish summary.
 
 
+### Important Notes:-
+
+-   When action is run in a pull request by dependabot or a forked repo (e.g. when bumping up a version in a pull request) this step will fail with the default github token ${{ secrets.GITHUB_TOKEN }} due to a lack of permissions.
+**Resolution:**  on consumer side of workflow please add below
+**Possible fix**
+The workflow needs `check: write` permissions.
+```yaml
+permissions:
+  checks: write
+```
+
+
 ### Sample Screenshot (Full Coverage Report): publish_only_summary: false
 
 ![image](https://user-images.githubusercontent.com/29324338/155446462-023a310a-c353-4a4c-9b3c-d25e7862ee74.png)
