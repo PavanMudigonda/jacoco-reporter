@@ -83,12 +83,14 @@ This Action defines the following formal outputs.
 
 -   When action is run in a pull request by dependabot or a forked repo (e.g. when bumping up a version in a pull request) this step will fail with the default github token ${{ secrets.GITHUB_TOKEN }} due to a lack of permissions.
 **Resolution:**  on consumer side of workflow please add below
+1) 
 **Possible fix**
 The workflow needs `check: write` permissions.
 ```yaml
 permissions:
   checks: write
 ```
+2) Or Alternatively use Personal Authorization Token from GitHub.
 
 
 ### Sample Screenshot (Full Coverage Report): publish_only_summary: false
