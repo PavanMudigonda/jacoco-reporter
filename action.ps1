@@ -244,12 +244,12 @@ else
         $coveragePercentageString = "{0:p2}" -f ($coveragePercentage/100)
     }
 
-Set-ActionVariable -Name coveragePercentageString -Value ($coveragePercentageString)
-Set-ActionVariable -Name coveragePercentage -Value ($coveragePercentage)
-Set-ActionVariable -Name coverage_percentage -Value ($coveragePercentage)
-Set-ActionVariable -Name covered_lines -Value ($coveredLines)
-Set-ActionVariable -Name missed_lines -Value ($missedLines)
-Set-ActionVariable -Name total_lines -Value ($coveredLines+$missedLines)
+# Set-ActionVariable -Name coveragePercentageString -Value ($coveragePercentageString)
+# Set-ActionVariable -Name coveragePercentage -Value ($coveragePercentage)
+# Set-ActionVariable -Name coverage_percentage -Value ($coveragePercentage)
+# Set-ActionVariable -Name covered_lines -Value ($coveredLines)
+# Set-ActionVariable -Name missed_lines -Value ($missedLines)
+# Set-ActionVariable -Name total_lines -Value ($coveredLines+$missedLines)
 
 # Set-ActionOutput -Name coveragePercentageString -Value ($coveragePercentageString)
 # Set-ActionOutput -Name coveragePercentage -Value ($coveragePercentage)
