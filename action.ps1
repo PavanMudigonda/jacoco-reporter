@@ -194,7 +194,7 @@ elseif ($inputs.skip_check_run -eq $true -and $inputs.publish_only_summary -eq $
 
         Build-CoverageSummaryReport
 
-        Build-SummaryReport
+        # Build-SummaryReport
 
         $coverageSummary = [System.IO.File]::ReadAllText($script:coverage_summary_path)
 
@@ -205,7 +205,7 @@ else {
 
         Build-CoverageReport
 
-        Build-SummaryReport
+        # Build-SummaryReport
 
         $coverageSummary = [System.IO.File]::ReadAllText($script:coverage_summary_path)
 
@@ -244,19 +244,19 @@ else
         $coveragePercentageString = "{0:p2}" -f ($coveragePercentage/100)
     }
 
-# Set-ActionVariable -Name coveragePercentageString -Value ($coveragePercentageString)
-# Set-ActionVariable -Name coveragePercentage -Value ($coveragePercentage)
-# Set-ActionVariable -Name coverage_percentage -Value ($coveragePercentage)
-# Set-ActionVariable -Name covered_lines -Value ($coveredLines)
-# Set-ActionVariable -Name missed_lines -Value ($missedLines)
-# Set-ActionVariable -Name total_lines -Value ($coveredLines+$missedLines)
+Set-ActionVariable -Name coveragePercentageString -Value ($coveragePercentageString)
+Set-ActionVariable -Name coveragePercentage -Value ($coveragePercentage)
+Set-ActionVariable -Name coverage_percentage -Value ($coveragePercentage)
+Set-ActionVariable -Name covered_lines -Value ($coveredLines)
+Set-ActionVariable -Name missed_lines -Value ($missedLines)
+Set-ActionVariable -Name total_lines -Value ($coveredLines+$missedLines)
 
-# Set-ActionOutput -Name coveragePercentageString -Value ($coveragePercentageString)
-# Set-ActionOutput -Name coveragePercentage -Value ($coveragePercentage)
-# Set-ActionOutput -Name coverage_percentage -Value ($coveragePercentage)
-# Set-ActionOutput -Name covered_lines -Value ($coveredLines)
-# Set-ActionOutput -Name missed_lines -Value ($missedLines)
-# Set-ActionOutput -Name total_lines -Value ($coveredLines+$missedLines)
+Set-ActionOutput -Name coveragePercentageString -Value ($coveragePercentageString)
+Set-ActionOutput -Name coveragePercentage -Value ($coveragePercentage)
+Set-ActionOutput -Name coverage_percentage -Value ($coveragePercentage)
+Set-ActionOutput -Name covered_lines -Value ($coveredLines)
+Set-ActionOutput -Name missed_lines -Value ($missedLines)
+Set-ActionOutput -Name total_lines -Value ($coveredLines+$missedLines)
 
 if ($inputs.fail_below_threshold -eq "true") {
         Write-ActionInfo "  * fail_below_threshold: true"
