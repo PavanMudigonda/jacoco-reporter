@@ -176,7 +176,7 @@ if ($inputs.skip_check_run -ne $true -and $inputs.publish_only_summary -eq $true
 
         Publish-ToCheckRun -ReportData $coverageSummaryData -ReportName $coverage_report_name -ReportTitle $coverage_report_title
 
-        Set-ActionOutput -Name coverageSummary -Value $coverageSummaryData
+        # Set-ActionOutput -Name coverageSummary -Value $coverageSummaryData
     }
 elseif ($inputs.skip_check_run -ne $true -and $inputs.publish_only_summary -ne $true )
     {
@@ -186,7 +186,7 @@ elseif ($inputs.skip_check_run -ne $true -and $inputs.publish_only_summary -ne $
 
         Publish-ToCheckRun -ReportData $coverageSummaryData -ReportName $coverage_report_name -ReportTitle $coverage_report_title
 
-        Set-ActionOutput -Name coverageSummary -Value $coverageSummaryData
+        # Set-ActionOutput -Name coverageSummary -Value $coverageSummaryData
 
     }
 elseif ($inputs.skip_check_run -eq $true -and $inputs.publish_only_summary -eq $true )
@@ -194,7 +194,7 @@ elseif ($inputs.skip_check_run -eq $true -and $inputs.publish_only_summary -eq $
 
         Build-CoverageSummaryReport
 
-        # Build-SummaryReport
+        Build-SummaryReport
 
         $coverageSummary = [System.IO.File]::ReadAllText($script:coverage_summary_path)
 
@@ -205,7 +205,7 @@ else {
 
         Build-CoverageReport
 
-        # Build-SummaryReport
+        Build-SummaryReport
 
         $coverageSummary = [System.IO.File]::ReadAllText($script:coverage_summary_path)
 
