@@ -198,7 +198,7 @@ elseif ($inputs.skip_check_run -eq $true -and $inputs.publish_only_summary -eq $
 
         $coverageSummary = [System.IO.File]::ReadAllText($script:coverage_summary_path)
 
-        Set-ActionOutput -Name coverageSummary -Value $coverageSummary
+        # Set-ActionOutput -Name coverageSummary -Value $coverageSummary
 
     }
 else {
@@ -209,7 +209,7 @@ else {
 
         $coverageSummary = [System.IO.File]::ReadAllText($script:coverage_summary_path)
 
-        Set-ActionOutput -Name coverageSummary -Value $coverageSummary
+        # Set-ActionOutput -Name coverageSummary -Value $coverageSummary
 
     }
 $coverageXmlData = Select-Xml -Path $coverage_results_path -XPath "/report/counter[@type='LINE']"
