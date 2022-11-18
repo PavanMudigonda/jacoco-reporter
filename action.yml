@@ -99,5 +99,5 @@ branding:
 ## Even though the Action logic may be implemented
 ## in PWSH, we still need a NodeJS entry point
 runs:
-  using: node12
+  using: node16
   main: _init/index.js
