@@ -187,24 +187,28 @@ function Format-Percentage {
     if ($script:missedLines -eq 0)
         {
         $coveragePercentage = 100
+        $script:coveragePercentage = 100
         Write-Output "Coverage: $coveragePercentage"
         $script:coveragePercentageString = "{0:p2}" -f ($coveragePercentage/100)
         }
     elseif ($script:coveredLines -eq 0)
         {
         $coveragePercentage = 0
+        $script:coveragePercentage = 0
         Write-Output "Coverage: $coveragePercentage"
         $script:coveragePercentageString = "{0:p2}" -f ($coveragePercentage)
         }
     elseif ($coveredLines -eq 0 -and $missedLines -eq 0)
         {
         $coveragePercentage = 0
+        $script:coveragePercentage = 0
         Write-Output "Coverage: $coveragePercentage"
         $script:coveragePercentageString = "{0:p2}" -f ($coveragePercentage)
         }
     else
         {
             $coveragePercentage = [math]::Round( (($script:coveredLines/($script:coveredLines+$script:missedLines) ) * 100 ), 2)
+            $script:coveragePercentage = [math]::Round( (($script:coveredLines/($script:coveredLines+$script:missedLines) ) * 100 ), 2)
             Write-Output "Coverage: $coveragePercentage"
             $script:coveragePercentageString = "{0:p2}" -f ($coveragePercentage/100)
         }
