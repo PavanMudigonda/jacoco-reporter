@@ -346,9 +346,9 @@ if ($inputs.skip_check_run -ne $true -and $inputs.publish_only_summary -eq $true
         
         Parse-XML
         
-        Format-Percentage
-        
         Set-Output
+                
+        Format-Percentage
         
         $coverageSummaryData = [System.IO.File]::ReadAllText($script:coverage_report_path)     
         
@@ -367,9 +367,9 @@ elseif ($inputs.skip_check_run -ne $true -and $inputs.publish_only_summary -ne $
         
         Parse-XML
         
-        Format-Percentage
-        
         Set-Output
+                
+        Format-Percentage
         
         $coverageSummaryData = [System.IO.File]::ReadAllText($script:coverage_report_path)
 
@@ -390,9 +390,9 @@ elseif ($inputs.skip_check_run -eq $true -and $inputs.publish_only_summary -eq $
         
         Parse-XML
         
-        Format-Percentage
-        
         Set-Output
+                
+        Format-Percentage
 
         $coverageSummary = [System.IO.File]::ReadAllText($script:coverage_summary_path)
 
@@ -407,9 +407,9 @@ else {
         
         Parse-XML
         
-        Format-Percentage
-        
         Set-Output
+                
+        Format-Percentage
 
         $coverageSummary = [System.IO.File]::ReadAllText($script:coverage_summary_path)
         
