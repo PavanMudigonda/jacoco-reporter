@@ -173,10 +173,10 @@ function Publish-ToCheckRun {
 function Parse-XML {
 # Parse XML
 $coverageXmlData = Select-Xml -Path $coverage_results_path -XPath "/report/counter[@type='LINE']"
-$coveredLines = [int]$coverageXmlData.Node.covered
+$script:coveredLines = [int]$coverageXmlData.Node.covered
 Write-Host "Covered Lines: $coveredLines"
-$missedLines = [int]$coverageXmlData.Node.missed
-$totalLines = [int]($coveredLines+$missedLines)
+$script:missedLines = [int]$coverageXmlData.Node.missed
+$script:totalLines = [int]($coveredLines+$missedLines)
 Write-Host "Missed Lines: $missedLines"
 Write-Host "Total Lines: $totalLines"
 
@@ -184,29 +184,29 @@ Write-Host "Total Lines: $totalLines"
 
 function Format-Percentage {
     # Format Percentage
-    if ($missedLines -eq 0)
+    if ($script:missedLines -eq 0)
         {
         $coveragePercentage = 100
         Write-Output "Coverage: $coveragePercentage"
-        $coveragePercentageString = "{0:p2}" -f ($coveragePercentage/100)
+        $script:coveragePercentageString = "{0:p2}" -f ($coveragePercentage/100)
         }
-    elseif ($coveredLines -eq 0)
+    elseif ($script:coveredLines -eq 0)
         {
         $coveragePercentage = 0
         Write-Output "Coverage: $coveragePercentage"
-        $coveragePercentageString = "{0:p2}" -f ($coveragePercentage)
+        $script:coveragePercentageString = "{0:p2}" -f ($coveragePercentage)
         }
     elseif ($coveredLines -eq 0 -and $missedLines -eq 0)
         {
         $coveragePercentage = 0
         Write-Output "Coverage: $coveragePercentage"
-        $coveragePercentageString = "{0:p2}" -f ($coveragePercentage)
+        $script:coveragePercentageString = "{0:p2}" -f ($coveragePercentage)
         }
     else
         {
-            $coveragePercentage = [math]::Round( (($coveredLines/($coveredLines+$missedLines) ) * 100 ), 2)
+            $coveragePercentage = [math]::Round( (($script:coveredLines/($script:coveredLines+$script:missedLines) ) * 100 ), 2)
             Write-Output "Coverage: $coveragePercentage"
-            $coveragePercentageString = "{0:p2}" -f ($coveragePercentage/100)
+            $script:coveragePercentageString = "{0:p2}" -f ($coveragePercentage/100)
         }
 }
 
@@ -214,19 +214,19 @@ function Format-Percentage {
 function Set-Output {
     # Set Output
 
-    Set-ActionVariable -Name coveragePercentageString -Value ($coveragePercentageString)
-    Set-ActionVariable -Name coveragePercentage -Value ($coveragePercentage)
-    Set-ActionVariable -Name coverage_percentage -Value ($coveragePercentage)
-    Set-ActionVariable -Name covered_lines -Value ($coveredLines)
-    Set-ActionVariable -Name missed_lines -Value ($missedLines)
+    Set-ActionVariable -Name coveragePercentageString -Value ($script:coveragePercentageString)
+    Set-ActionVariable -Name coveragePercentage -Value ($script:coveragePercentage)
+    Set-ActionVariable -Name coverage_percentage -Value ($script:coveragePercentage)
+    Set-ActionVariable -Name covered_lines -Value ($script:coveredLines)
+    Set-ActionVariable -Name missed_lines -Value ($script:missedLines)
     Set-ActionVariable -Name total_lines -Value ($coveredLines+$missedLines)
 
-    Set-ActionOutput -Name coveragePercentageString -Value ($coveragePercentageString)
-    Set-ActionOutput -Name coveragePercentage -Value ($coveragePercentage)
-    Set-ActionOutput -Name coverage_percentage -Value ($coveragePercentage)
-    Set-ActionOutput -Name covered_lines -Value ($coveredLines)
-    Set-ActionOutput -Name missed_lines -Value ($missedLines)
-    Set-ActionOutput -Name total_lines -Value ($coveredLines+$missedLines)
+    Set-ActionOutput -Name coveragePercentageString -Value ($script:coveragePercentageString)
+    Set-ActionOutput -Name coveragePercentage -Value ($script:coveragePercentage)
+    Set-ActionOutput -Name coverage_percentage -Value ($script:coveragePercentage)
+    Set-ActionOutput -Name covered_lines -Value ($script:coveredLines)
+    Set-ActionOutput -Name missed_lines -Value ($script:missedLines)
+    Set-ActionOutput -Name total_lines -Value ($script:coveredLines+$missedLines)
 
 }
 
@@ -235,46 +235,42 @@ function Set-Outcome {
             Write-ActionInfo "  * fail_below_threshold: true"
         }
 
-    if ($coveragePercentage -lt $inputs.minimum_coverage -and $inputs.fail_below_threshold -eq "true") {
+    if ($script:coveragePercentage -lt $inputs.minimum_coverage -and $inputs.fail_below_threshold -eq "true") {
             $script:outcome = "failure"
             $script:level = "warning"
             $script:messageToDisplay = "Code Coverage $coveragePercentageString"
         }
 
-    if ($coveragePercentage -ge $inputs.minimum_coverage -and $inputs.fail_below_threshold -eq "true") {
+    if ($script:coveragePercentage -ge $inputs.minimum_coverage -and $inputs.fail_below_threshold -eq "true") {
             $script:outcome = "success"
             $script:level = "notice"
             $script:messageToDisplay = "Code Coverage $coveragePercentageString"
         }
 
-    if ($coveragePercentage -ge $inputs.minimum_coverage -and $inputs.fail_below_threshold -eq "false") {
+    if ($script:coveragePercentage -ge $inputs.minimum_coverage -and $inputs.fail_below_threshold -eq "false") {
             $script:outcome = "success"
             $script:level = "notice"
             $script:messageToDisplay = "Code Coverage $coveragePercentageString"
         }
 
-    if ($coveragePercentage -ge $inputs.minimum_coverage -and $inputs.fail_below_threshold -eq "") {
+    if ($script:coveragePercentage -ge $inputs.minimum_coverage -and $inputs.fail_below_threshold -eq "") {
             $script:outcome = "success"
             $script:level = "notice"
             $script:messageToDisplay = "Code Coverage $coveragePercentageString"
         }
 
-    if ($coveragePercentage -lt $inputs.minimum_coverage -and $inputs.fail_below_threshold -eq "false") {
+    if ($script:coveragePercentage -lt $inputs.minimum_coverage -and $inputs.fail_below_threshold -eq "false") {
             $script:outcome = "success"
             $script:level = "notice"
             $script:messageToDisplay = "Code Coverage $coveragePercentageString"
         }
         
-    if ($coveragePercentage -lt $inputs.minimum_coverage -and $inputs.fail_below_threshold -eq "") {
+    if ($script:coveragePercentage -lt $inputs.minimum_coverage -and $inputs.fail_below_threshold -eq "") {
             $script:outcome = "success"
             $script:level = "notice"
             $script:messageToDisplay = "Code Coverage $coveragePercentageString"
         }
-        
-    if ($stepShouldFail) {
-        Write-ActionInfo "Thowing error as Code Coverage is less than "minimum_coverage" is not met and 'fail_below_threshold' was true."
-    }
-    
+          
 }
 
 # Quality Gate Enforce
