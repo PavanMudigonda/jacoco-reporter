@@ -149,7 +149,7 @@ function Publish-ToCheckRun {
     Write-ActionInfo "Adding Check Run"
     $url = "https://api.github.com/repos/$repoFullName/check-runs"
     $hdr = @{
-        Accept = 'application/vnd.github.antiope-preview+json'
+        Accept = 'application/vnd.github+json'
         Authorization = "token $ghToken"
     }
     $bdy = @{
