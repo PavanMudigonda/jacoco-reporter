@@ -341,10 +341,10 @@ if ($inputs.skip_check_run -ne $true -and $inputs.publish_only_summary -eq $true
         Build-CoverageSummaryReport
         
         Parse-XML
-        
-        Set-Output
                 
         Format-Percentage
+        
+        Set-Output
         
         $coverageSummaryData = [System.IO.File]::ReadAllText($script:coverage_report_path)     
         
@@ -362,10 +362,10 @@ elseif ($inputs.skip_check_run -ne $true -and $inputs.publish_only_summary -ne $
         Build-CoverageReport
         
         Parse-XML
-        
-        Set-Output
                 
         Format-Percentage
+        
+        Set-Output
         
         $coverageSummaryData = [System.IO.File]::ReadAllText($script:coverage_report_path)
 
@@ -385,11 +385,11 @@ elseif ($inputs.skip_check_run -eq $true -and $inputs.publish_only_summary -eq $
         Build-SummaryReport
         
         Parse-XML
-        
-        Set-Output
                 
         Format-Percentage
 
+        Set-Output
+        
         $coverageSummary = [System.IO.File]::ReadAllText($script:coverage_summary_path)
 
         Quality-Gate
@@ -402,11 +402,11 @@ else {
         Build-SummaryReport
         
         Parse-XML
-        
-        Set-Output
                 
         Format-Percentage
-
+        
+        Set-Output
+        
         $coverageSummary = [System.IO.File]::ReadAllText($script:coverage_summary_path)
         
         Quality-Gate
