@@ -170,6 +170,7 @@ function Publish-ToCheckRun {
     $script:checkId = $checkId
 }
 
+function Parse-XML {
 # Parse XML
 $coverageXmlData = Select-Xml -Path $coverage_results_path -XPath "/report/counter[@type='LINE']"
 $coveredLines = [int]$coverageXmlData.Node.covered
@@ -179,47 +180,55 @@ $totalLines = [int]($coveredLines+$missedLines)
 Write-Host "Missed Lines: $missedLines"
 Write-Host "Total Lines: $totalLines"
 
-# Format Percentage
-if ($missedLines -eq 0)
-    {
-    $coveragePercentage = 100
-    Write-Output "Coverage: $coveragePercentage"
-    $coveragePercentageString = "{0:p2}" -f ($coveragePercentage/100)
-    }
-elseif ($coveredLines -eq 0)
-    {
-    $coveragePercentage = 0
-    Write-Output "Coverage: $coveragePercentage"
-    $coveragePercentageString = "{0:p2}" -f ($coveragePercentage)
-    }
-elseif ($coveredLines -eq 0 -and $missedLines -eq 0)
-    {
-    $coveragePercentage = 0
-    Write-Output "Coverage: $coveragePercentage"
-    $coveragePercentageString = "{0:p2}" -f ($coveragePercentage)
-    }
-else
-    {
-        $coveragePercentage = [math]::Round( (($coveredLines/($coveredLines+$missedLines) ) * 100 ), 2)
+}
+
+function Format-Percentage {
+    # Format Percentage
+    if ($missedLines -eq 0)
+        {
+        $coveragePercentage = 100
         Write-Output "Coverage: $coveragePercentage"
         $coveragePercentageString = "{0:p2}" -f ($coveragePercentage/100)
-    }
+        }
+    elseif ($coveredLines -eq 0)
+        {
+        $coveragePercentage = 0
+        Write-Output "Coverage: $coveragePercentage"
+        $coveragePercentageString = "{0:p2}" -f ($coveragePercentage)
+        }
+    elseif ($coveredLines -eq 0 -and $missedLines -eq 0)
+        {
+        $coveragePercentage = 0
+        Write-Output "Coverage: $coveragePercentage"
+        $coveragePercentageString = "{0:p2}" -f ($coveragePercentage)
+        }
+    else
+        {
+            $coveragePercentage = [math]::Round( (($coveredLines/($coveredLines+$missedLines) ) * 100 ), 2)
+            Write-Output "Coverage: $coveragePercentage"
+            $coveragePercentageString = "{0:p2}" -f ($coveragePercentage/100)
+        }
+}
 
-# Set Output
 
-Set-ActionVariable -Name coveragePercentageString -Value ($coveragePercentageString)
-Set-ActionVariable -Name coveragePercentage -Value ($coveragePercentage)
-Set-ActionVariable -Name coverage_percentage -Value ($coveragePercentage)
-Set-ActionVariable -Name covered_lines -Value ($coveredLines)
-Set-ActionVariable -Name missed_lines -Value ($missedLines)
-Set-ActionVariable -Name total_lines -Value ($coveredLines+$missedLines)
+function Set-Output {
+    # Set Output
 
-Set-ActionOutput -Name coveragePercentageString -Value ($coveragePercentageString)
-Set-ActionOutput -Name coveragePercentage -Value ($coveragePercentage)
-Set-ActionOutput -Name coverage_percentage -Value ($coveragePercentage)
-Set-ActionOutput -Name covered_lines -Value ($coveredLines)
-Set-ActionOutput -Name missed_lines -Value ($missedLines)
-Set-ActionOutput -Name total_lines -Value ($coveredLines+$missedLines)
+    Set-ActionVariable -Name coveragePercentageString -Value ($coveragePercentageString)
+    Set-ActionVariable -Name coveragePercentage -Value ($coveragePercentage)
+    Set-ActionVariable -Name coverage_percentage -Value ($coveragePercentage)
+    Set-ActionVariable -Name covered_lines -Value ($coveredLines)
+    Set-ActionVariable -Name missed_lines -Value ($missedLines)
+    Set-ActionVariable -Name total_lines -Value ($coveredLines+$missedLines)
+
+    Set-ActionOutput -Name coveragePercentageString -Value ($coveragePercentageString)
+    Set-ActionOutput -Name coveragePercentage -Value ($coveragePercentage)
+    Set-ActionOutput -Name coverage_percentage -Value ($coveragePercentage)
+    Set-ActionOutput -Name covered_lines -Value ($coveredLines)
+    Set-ActionOutput -Name missed_lines -Value ($missedLines)
+    Set-ActionOutput -Name total_lines -Value ($coveredLines+$missedLines)
+
+}
 
 function Set-Outcome {
     if ($inputs.fail_below_threshold -eq "true") {
@@ -266,6 +275,25 @@ function Set-Outcome {
         Write-ActionInfo "Thowing error as Code Coverage is less than "minimum_coverage" is not met and 'fail_below_threshold' was true."
     }
     
+}
+
+# Quality Gate Enforce
+
+function Quality-Gate {
+
+    if ($inputs.fail_below_threshold -eq "true") {
+            Write-ActionInfo "  * fail_below_threshold: true"
+        }
+
+    if ($coveragePercentage -lt $inputs.minimum_coverage -and $inputs.fail_below_threshold -eq "true") {
+            $script:stepShouldFail = $true
+        }
+
+    if ($stepShouldFail) {
+        Write-ActionInfo "Thowing error as Code Coverage is less than "minimum_coverage" is not met and 'fail_below_threshold' was true."
+        throw "Code Coverage is less than Minimum Code Coverage Required"
+    }
+
 }
 
 #Issue 26: FEATURE REQUEST: Display Coverage Percent along with Check
@@ -315,26 +343,41 @@ if ($inputs.skip_check_run -ne $true -and $inputs.publish_only_summary -eq $true
     {
 
         Build-CoverageSummaryReport
-
-        $coverageSummaryData = [System.IO.File]::ReadAllText($script:coverage_report_path)
-
+        
+        Parse-XML
+        
+        Format-Percentage
+        
+        Set-Output
+        
+        $coverageSummaryData = [System.IO.File]::ReadAllText($script:coverage_report_path)     
+        
         Publish-ToCheckRun -ReportData $coverageSummaryData -ReportName $coverage_report_name -ReportTitle $coverage_report_title
         
         Update-PRCheck -ReportData $coverageSummaryData -ReportName $coverage_report_name -ReportTitle $script:messageToDisplay
 
+        Quality-Gate
+        
         # Set-ActionOutput -Name coverageSummary -Value $coverageSummaryData
     }
 elseif ($inputs.skip_check_run -ne $true -and $inputs.publish_only_summary -ne $true )
     {
 
         Build-CoverageReport
-
+        
+        Parse-XML
+        
+        Format-Percentage
+        
+        Set-Output
+        
         $coverageSummaryData = [System.IO.File]::ReadAllText($script:coverage_report_path)
 
         Publish-ToCheckRun -ReportData $coverageSummaryData -ReportName $coverage_report_name -ReportTitle $coverage_report_title
 
         Update-PRCheck -ReportData $coverageSummaryData -ReportName $coverage_report_name -ReportTitle $script:messageToDisplay
 
+        Quality-Gate
         # Set-ActionOutput -Name coverageSummary -Value $coverageSummaryData
 
     }
@@ -344,9 +387,16 @@ elseif ($inputs.skip_check_run -eq $true -and $inputs.publish_only_summary -eq $
         Build-CoverageSummaryReport
 
         Build-SummaryReport
+        
+        Parse-XML
+        
+        Format-Percentage
+        
+        Set-Output
 
         $coverageSummary = [System.IO.File]::ReadAllText($script:coverage_summary_path)
 
+        Quality-Gate
         # Set-ActionOutput -Name coverageSummary -Value $coverageSummary
 
     }
@@ -354,28 +404,21 @@ else {
         Build-CoverageReport
 
         Build-SummaryReport
+        
+        Parse-XML
+        
+        Format-Percentage
+        
+        Set-Output
 
         $coverageSummary = [System.IO.File]::ReadAllText($script:coverage_summary_path)
+        
+        Quality-Gate
 
         # Set-ActionOutput -Name coverageSummary -Value $coverageSummary
 
     }
     
 
-# call function to publish pr check
- 
 
-# Quality Gate Enforce
 
-if ($inputs.fail_below_threshold -eq "true") {
-        Write-ActionInfo "  * fail_below_threshold: true"
-    }
-
-if ($coveragePercentage -lt $inputs.minimum_coverage -and $inputs.fail_below_threshold -eq "true") {
-        $script:stepShouldFail = $true
-    }
-
-if ($stepShouldFail) {
-    Write-ActionInfo "Thowing error as Code Coverage is less than "minimum_coverage" is not met and 'fail_below_threshold' was true."
-    throw "Code Coverage is less than Minimum Code Coverage Required"
-}
