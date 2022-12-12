@@ -354,7 +354,7 @@ if ($inputs.skip_check_run -ne $true -and $inputs.publish_only_summary -eq $true
         
         Publish-ToCheckRun -ReportData $coverageSummaryData -ReportName $coverage_report_name -ReportTitle $coverage_report_title
         
-        Update-PRCheck -ReportData $coverageSummaryData -ReportName $coverage_report_name -ReportTitle $script:messageToDisplay
+#         Update-PRCheck -ReportData $coverageSummaryData -ReportName $coverage_report_name -ReportTitle $script:messageToDisplay
 
         Quality-Gate
         
@@ -375,7 +375,7 @@ elseif ($inputs.skip_check_run -ne $true -and $inputs.publish_only_summary -ne $
 
         Publish-ToCheckRun -ReportData $coverageSummaryData -ReportName $coverage_report_name -ReportTitle $coverage_report_title
 
-        Update-PRCheck -ReportData $coverageSummaryData -ReportName $coverage_report_name -ReportTitle $script:messageToDisplay
+#         Update-PRCheck -ReportData $coverageSummaryData -ReportName $coverage_report_name -ReportTitle $script:messageToDisplay
 
         Quality-Gate
         # Set-ActionOutput -Name coverageSummary -Value $coverageSummaryData
@@ -419,6 +419,3 @@ else {
 
     }
     
-
-
-
