@@ -114,6 +114,7 @@ function Build-SummaryReport
         }
 }
 
+# Function to Publish Check Run with Neutral Status # Round 1
 function Publish-ToCheckRun {
     param(
         [string]$reportData,
@@ -155,7 +156,7 @@ function Publish-ToCheckRun {
         name       = $reportName
         head_sha   = $ref
         status     = 'completed'
-        conclusion = $outcome
+        conclusion = 'neutral'
         output     = @{
             title   = $reportTitle
             summary = "This run completed at ``$([datetime]::Now)``"
@@ -163,7 +164,7 @@ function Publish-ToCheckRun {
         }
     }
     $response = Invoke-WebRequest -Headers $hdr $url -Method Post -Body ($bdy | ConvertTo-Json)
-    
+    # Grab Check ID
     $checkId = ( ConvertFrom-Json $response.Content ).id
     Write-ActionInfo "Check ID: $checkId"
     $script:checkId = $checkId
@@ -226,39 +227,39 @@ function Set-Outcome {
         }
 
     if ($coveragePercentage -lt $inputs.minimum_coverage -and $inputs.fail_below_threshold -eq "true") {
-            $outcome = "failure"
-            $level = "warning"
-            $messageToDisplay = "Code Coverage $coveragePercentageString"
+            $script:outcome = "failure"
+            $script:level = "warning"
+            $script:messageToDisplay = "Code Coverage $coveragePercentageString"
         }
 
     if ($coveragePercentage -ge $inputs.minimum_coverage -and $inputs.fail_below_threshold -eq "true") {
-            $outcome = "success"
-            $level = "notice"
-            $messageToDisplay = "Code Coverage $coveragePercentageString"
+            $script:outcome = "success"
+            $script:level = "notice"
+            $script:messageToDisplay = "Code Coverage $coveragePercentageString"
         }
 
     if ($coveragePercentage -ge $inputs.minimum_coverage -and $inputs.fail_below_threshold -eq "false") {
-            $outcome = "success"
-            $level = "notice"
-            $messageToDisplay = "Code Coverage $coveragePercentageString"
+            $script:outcome = "success"
+            $script:level = "notice"
+            $script:messageToDisplay = "Code Coverage $coveragePercentageString"
         }
 
     if ($coveragePercentage -ge $inputs.minimum_coverage -and $inputs.fail_below_threshold -eq "") {
-            $outcome = "success"
-            $level = "notice"
-            $messageToDisplay = "Code Coverage $coveragePercentageString"
+            $script:outcome = "success"
+            $script:level = "notice"
+            $script:messageToDisplay = "Code Coverage $coveragePercentageString"
         }
 
     if ($coveragePercentage -lt $inputs.minimum_coverage -and $inputs.fail_below_threshold -eq "false") {
-            $outcome = "success"
-            $level = "notice"
-            $messageToDisplay = "Code Coverage $coveragePercentageString"
+            $script:outcome = "success"
+            $script:level = "notice"
+            $script:messageToDisplay = "Code Coverage $coveragePercentageString"
         }
         
     if ($coveragePercentage -lt $inputs.minimum_coverage -and $inputs.fail_below_threshold -eq "") {
-            $outcome = "success"
-            $level = "notice"
-            $messageToDisplay = "Code Coverage $coveragePercentageString"
+            $script:outcome = "success"
+            $script:level = "notice"
+            $script:messageToDisplay = "Code Coverage $coveragePercentageString"
         }
         
     if ($stepShouldFail) {
@@ -266,36 +267,79 @@ function Set-Outcome {
     }
     
 }
+
+#Issue 26: FEATURE REQUEST: Display Coverage Percent along with Check
+                             
+function Update-PRCheck {
+    param(
+        [string]$reportData,
+        [string]$reportName,
+        [string]$reportTitle
+    )
+    
+    Set-Outcome
+    
+    $ghToken = $inputs.github_token
+    $ctx = Get-ActionContext
+    $repo = Get-ActionRepo
+    $repoFullName = "$($repo.Owner)/$($repo.Repo)"    
+    Write-ActionInfo "Resolved REF as $ref"
+    Write-ActionInfo "Resolve Repo Full Name as $repoFullName"
+    Write-ActionInfo "Update Annotation Check to: $checkId"
+    $checkId = $script:checkId
+    Write-ActionInfo "checkId: $checkId"
+    $url = "https://api.github.com/repos/$repoFullName/check-runs/$checkId"
+    $hdr = @{
+        Accept = 'application/vnd.github+json'
+        Authorization = "token $ghToken"
+    }
+    $bdy = @{
+        name       = $reportName
+        status     = 'completed'
+        conclusion = $script:outcome
+        output     = @{
+            title   = $reportTitle
+            summary = "This run completed at ``$([datetime]::Now)``"
+            text    = $ReportData
+        }
+    }
+    Invoke-WebRequest -Headers $hdr $url -Method Patch -Body ($bdy | ConvertTo-Json)
+}
+
+
 # Publishing Report to GH Workflow
 
 Write-ActionInfo "Publishing Report to GH Workflow"
 $coverage_results_path = $inputs.coverage_results_path
 if ($inputs.skip_check_run -ne $true -and $inputs.publish_only_summary -eq $true )
     {
-        Set-Outcome
+
         Build-CoverageSummaryReport
 
         $coverageSummaryData = [System.IO.File]::ReadAllText($script:coverage_report_path)
 
         Publish-ToCheckRun -ReportData $coverageSummaryData -ReportName $coverage_report_name -ReportTitle $coverage_report_title
+        
+        Update-PRCheck -ReportData $coverageSummaryData -ReportName $coverage_report_name -ReportTitle $script:messageToDisplay
 
         # Set-ActionOutput -Name coverageSummary -Value $coverageSummaryData
     }
 elseif ($inputs.skip_check_run -ne $true -and $inputs.publish_only_summary -ne $true )
     {
-        Set-Outcome
+
         Build-CoverageReport
 
         $coverageSummaryData = [System.IO.File]::ReadAllText($script:coverage_report_path)
 
         Publish-ToCheckRun -ReportData $coverageSummaryData -ReportName $coverage_report_name -ReportTitle $coverage_report_title
 
+        Update-PRCheck -ReportData $coverageSummaryData -ReportName $coverage_report_name -ReportTitle $script:messageToDisplay
+
         # Set-ActionOutput -Name coverageSummary -Value $coverageSummaryData
 
     }
 elseif ($inputs.skip_check_run -eq $true -and $inputs.publish_only_summary -eq $true )
     {
-        Set-Outcome
         
         Build-CoverageSummaryReport
 
@@ -307,8 +351,6 @@ elseif ($inputs.skip_check_run -eq $true -and $inputs.publish_only_summary -eq $
 
     }
 else {
-        Set-Outcome
-
         Build-CoverageReport
 
         Build-SummaryReport
@@ -319,6 +361,9 @@ else {
 
     }
     
+
+# call function to publish pr check
+ 
 
 # Quality Gate Enforce
 
@@ -334,61 +379,3 @@ if ($stepShouldFail) {
     Write-ActionInfo "Thowing error as Code Coverage is less than "minimum_coverage" is not met and 'fail_below_threshold' was true."
     throw "Code Coverage is less than Minimum Code Coverage Required"
 }
-
-
-
-#Issue 26: FEATURE REQUEST: Display Coverage Percent along with Check
-                             
-function Publish-PRCheck {
-
-    
-    $ghToken = $inputs.github_token
-    $ctx = Get-ActionContext
-    $repo = Get-ActionRepo
-    $repoFullName = "$($repo.Owner)/$($repo.Repo)"
-
-    Write-ActionInfo "Resolving REF"
-    $ref = $ctx.Sha
-    if ($ctx.EventName -eq 'pull_request') {
-        Write-ActionInfo "Resolving PR REF"
-        $ref = $ctx.Payload.pull_request.head.sha
-        if (-not $ref) {
-            Write-ActionInfo "Resolving PR REF as AFTER"
-            $ref = $ctx.Payload.after
-        }
-    }
-    if (-not $ref) {
-        Write-ActionError "Failed to resolve REF"
-        exit 1
-    }
-    
-    Write-ActionInfo "Resolved REF as $ref"
-    Write-ActionInfo "Resolve Repo Full Name as $repoFullName"
-    
-    Write-ActionInfo "Adding Annotation Check to: $checkId"
-    $checkId = $script:checkId
-    Write-ActionInfo "checkId: $checkId"
-    $url = "https://api.github.com/repos/$repoFullName/check-runs/$checkId"
-    $hdr = @{
-        Accept = 'application/vnd.github+json'
-        Authorization = "token $ghToken"
-    }
-    $bdy = @{
-        name       = "Code Coverage"
-        status     = 'completed'
-        conclusion = $outcome
-        output     = @{
-            'title'   = $messageToDisplay
-            'summary' = "Code Coverage $coveragePercentageString"
-#             'summary' = "This run completed at ``$([datetime]::Now)``"
-#             'annotations[0]' = @{annotation_level=$level
-#                                message="Actual Code Coverage ${coveragePercentageString}. Expected ${inputs.minimum_coverage}" 
-#                                }
-        }
-    }
-    Invoke-WebRequest -Headers $hdr $url -Method Patch -Body ($bdy | ConvertTo-Json)
-}
-
- # call function to publish pr check
- 
-Publish-PRCheck
