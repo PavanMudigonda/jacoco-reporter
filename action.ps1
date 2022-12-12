@@ -362,15 +362,6 @@ function Publish-PRCheck {
         exit 1
     }
     
-    $annotationObject = @(
-                @{annotation_level=$level
-                  message="Actual Code Coverage ${coveragePercentageString}. Expected ${inputs.minimum_coverage}" 
-                }
-            )
-    $annotationJsonArray = ConvertTo-Json -InputObject $annotationObject
-                            
-    $annotationJsonArray = ConvertTo-Json -InputObject $annotationObject
-    Write-Output $annotationJsonArray
     Write-ActionInfo "Resolved REF as $ref"
     Write-ActionInfo "Resolve Repo Full Name as $repoFullName"
     
@@ -384,12 +375,12 @@ function Publish-PRCheck {
     }
     $bdy = @{
         name       = "Code Coverage"
-        head_sha   = $ref
         status     = 'completed'
         conclusion = $outcome
         output     = @{
             'title'   = $messageToDisplay
             'summary' = "Code Coverage $coveragePercentageString"
+#             'summary' = "This run completed at ``$([datetime]::Now)``"
 #             'annotations[0]' = @{annotation_level=$level
 #                                message="Actual Code Coverage ${coveragePercentageString}. Expected ${inputs.minimum_coverage}" 
 #                                }
