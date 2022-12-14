@@ -149,7 +149,7 @@ function Publish-ToCheckRun {
     Write-ActionInfo "Adding Check Run"
     $url = "https://api.github.com/repos/$repoFullName/check-runs"
     $hdr = @{
-        Accept = 'application/vnd.github.antiope-preview+json'
+        Accept = 'application/vnd.github+json'
         Authorization = "token $ghToken"
     }
     $bdy = @{
@@ -158,12 +158,16 @@ function Publish-ToCheckRun {
         status     = 'completed'
         conclusion = 'neutral'
         output     = @{
-            title   = $reportTitle
+            title   = "Code Coverage $script:coveragePercentageString"
             summary = "This run completed at ``$([datetime]::Now)``"
             text    = $ReportData
         }
     }
-    Invoke-WebRequest -Headers $hdr $url -Method Post -Body ($bdy | ConvertTo-Json)
+    Write-ActionInfo "$hdr"
+    Write-ActionInfo $url
+    Write-ActionInfo "$bdy"
+
+    $response = Invoke-WebRequest -Headers $hdr $url -Method Post -Body ($bdy | ConvertTo-Json)
     # Grab Check ID
     # $checkId = ( ConvertFrom-Json $response.Content ).id
     # $checkUrl = ( ConvertFrom-Json $response.Content ).url
@@ -173,9 +177,9 @@ function Publish-ToCheckRun {
     # $script:checkId = $checkId
 }
 
-function Parse-Coverage-XML {
+function Parse-CoverageXML {
     # Parse XML
-    $coverageXmlData = Select-Xml -Path $coverage_results_path -XPath "/report/counter[@type='LINE']"
+    $coverageXmlData = Select-Xml -Path $script:coverage_results_path -XPath "/report/counter[@type='LINE']"
     $script:coveredLines = [int]$coverageXmlData.Node.covered
     Write-Host "Covered Lines: $coveredLines"
     $script:missedLines = [int]$coverageXmlData.Node.missed
@@ -280,7 +284,7 @@ function Set-Outcome {
 
 # Enforce Quality Gate
 
-function Enforce-Quality-Gate {
+function Enforce-QualityGate {
     if ($inputs.fail_below_threshold -eq "true") {
             Write-ActionInfo "  * fail_below_threshold: true"
         }
@@ -342,7 +346,7 @@ if ($inputs.skip_check_run -ne $true -and $inputs.publish_only_summary -eq $true
 
         Build-CoverageSummaryReport
         
-        Parse-Coverage-XML
+        Parse-CoverageXML
                 
         Format-Percentage
         
@@ -354,7 +358,7 @@ if ($inputs.skip_check_run -ne $true -and $inputs.publish_only_summary -eq $true
         
 #       Update-PRCheck -ReportData $script:coverageSummaryData -ReportName $coverage_report_name -ReportTitle $script:messageToDisplay
 
-        Enforce-Quality-Gate
+        Enforce-QualityGate
         
         # Set-ActionOutput -Name coverageSummary -Value $script:coverageSummaryData
     }
@@ -362,8 +366,8 @@ elseif ($inputs.skip_check_run -ne $true -and $inputs.publish_only_summary -ne $
     {
 
         Build-CoverageReport
-        
-        Parse-Coverage-XML
+
+        Parse-CoverageXML
                 
         Format-Percentage
         
@@ -375,7 +379,7 @@ elseif ($inputs.skip_check_run -ne $true -and $inputs.publish_only_summary -ne $
 
 #         Update-PRCheck -ReportData $script:coverageSummaryData -ReportName $coverage_report_name -ReportTitle $script:messageToDisplay
 
-        Enforce-Quality-Gate
+        Enforce-QualityGate
         # Set-ActionOutput -Name coverageSummary -Value $script:coverageSummaryData
 
     }
@@ -386,7 +390,7 @@ elseif ($inputs.skip_check_run -eq $true -and $inputs.publish_only_summary -eq $
 
         Build-SummaryReport
         
-        Parse-Coverage-XML
+        Parse-CoverageXML
                 
         Format-Percentage
 
@@ -394,16 +398,15 @@ elseif ($inputs.skip_check_run -eq $true -and $inputs.publish_only_summary -eq $
         
         $coverageSummary = [System.IO.File]::ReadAllText($script:coverage_summary_path)
 
-        Enforce-Quality-Gate
+        Enforce-QualityGate
         # Set-ActionOutput -Name coverageSummary -Value $script:coverageSummary
-
     }
 else {
         Build-CoverageReport
 
         Build-SummaryReport
         
-        Parse-Coverage-XML
+        Parse-CoverageXML
                 
         Format-Percentage
         
@@ -411,9 +414,8 @@ else {
         
         $coverageSummary = [System.IO.File]::ReadAllText($script:coverage_summary_path)
         
-        Enforce-Quality-Gate
+        Enforce-QualityGate
 
         # Set-ActionOutput -Name coverageSummary -Value $script:coverageSummary
-
     }
     
