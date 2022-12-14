@@ -167,14 +167,14 @@ function Publish-ToCheckRun {
     Write-ActionInfo $url
     Write-ActionInfo "$bdy | ConvertTo-Json"
 
-    $response = Invoke-WebRequest -Headers $hdr $url -Method Post -Body ($bdy | ConvertTo-Json)
+    Invoke-WebRequest -Headers $hdr $url -Method Post -Body ($bdy | ConvertTo-Json)
     # Grab Check ID
-    $checkId = ( ConvertFrom-Json $response.Content ).id
-    $checkUrl = ( ConvertFrom-Json $response.Content ).url
-    Write-ActionInfo "Check ID: $checkId"
-    Write-ActionInfo "Check ID: $checkUrl"
-    $script:checkUrl = $checkUrl
-    $script:checkId = $checkId
+    # $checkId = ( ConvertFrom-Json $response.Content ).id
+    # $checkUrl = ( ConvertFrom-Json $response.Content ).url
+    # Write-ActionInfo "Check ID: $checkId"
+    # Write-ActionInfo "Check ID: $checkUrl"
+    # $script:checkUrl = $checkUrl
+    # $script:checkId = $checkId
 }
 
 function Parse-Coverage-XML {
