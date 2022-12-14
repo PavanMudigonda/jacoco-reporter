@@ -345,9 +345,9 @@ if ($inputs.skip_check_run -ne $true -and $inputs.publish_only_summary -eq $true
         
         Set-Output
         
-        $script:coverageSummaryData = [System.IO.File]::ReadAllText($script:coverage_report_path)     
+        $coverageSummaryData = [System.IO.File]::ReadAllText($script:coverage_report_path)     
         
-        Publish-ToCheckRun -ReportData $script:coverageSummaryData -ReportName $script:coverage_report_name -ReportTitle $script:coverage_report_title
+        Publish-ToCheckRun -ReportData $coverageSummaryData -ReportName "Code Coverage: $script:coveragePercentageString" -ReportTitle $script:coverage_report_title
         
 #       Update-PRCheck -ReportData $script:coverageSummaryData -ReportName $coverage_report_name -ReportTitle $script:messageToDisplay
 
@@ -366,9 +366,9 @@ elseif ($inputs.skip_check_run -ne $true -and $inputs.publish_only_summary -ne $
         
         Set-Output
         
-        $script:coverageSummaryData = [System.IO.File]::ReadAllText($script:coverage_report_path)
+        $coverageSummaryData = [System.IO.File]::ReadAllText($script:coverage_report_path)
 
-        Publish-ToCheckRun -ReportData $script:coverageSummaryData -ReportName $script:coverage_report_name -ReportTitle $script:coverage_report_title
+        Publish-ToCheckRun -ReportData $coverageSummaryData -ReportName "Code Coverage: $script:coveragePercentageString" -ReportTitle $script:coverage_report_title
 
 #         Update-PRCheck -ReportData $script:coverageSummaryData -ReportName $coverage_report_name -ReportTitle $script:messageToDisplay
 
@@ -389,7 +389,7 @@ elseif ($inputs.skip_check_run -eq $true -and $inputs.publish_only_summary -eq $
 
         Set-Output
         
-        $script:coverageSummary = [System.IO.File]::ReadAllText($script:coverage_summary_path)
+        $coverageSummary = [System.IO.File]::ReadAllText($script:coverage_summary_path)
 
         Enforce-Quality-Gate
         # Set-ActionOutput -Name coverageSummary -Value $script:coverageSummary
@@ -406,7 +406,7 @@ else {
         
         Set-Output
         
-        $script:coverageSummary = [System.IO.File]::ReadAllText($script:coverage_summary_path)
+        $coverageSummary = [System.IO.File]::ReadAllText($script:coverage_summary_path)
         
         Enforce-Quality-Gate
 
