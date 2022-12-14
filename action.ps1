@@ -171,16 +171,15 @@ function Publish-ToCheckRun {
     $script:checkId = $checkId
 }
 
-function Parse-XML {
-# Parse XML
-$coverageXmlData = Select-Xml -Path $coverage_results_path -XPath "/report/counter[@type='LINE']"
-$script:coveredLines = [int]$coverageXmlData.Node.covered
-Write-Host "Covered Lines: $coveredLines"
-$script:missedLines = [int]$coverageXmlData.Node.missed
-$script:totalLines = [int]($coveredLines+$missedLines)
-Write-Host "Missed Lines: $missedLines"
-Write-Host "Total Lines: $totalLines"
-
+function Parse-Coverage-XML {
+    # Parse XML
+    $coverageXmlData = Select-Xml -Path $coverage_results_path -XPath "/report/counter[@type='LINE']"
+    $script:coveredLines = [int]$coverageXmlData.Node.covered
+    Write-Host "Covered Lines: $coveredLines"
+    $script:missedLines = [int]$coverageXmlData.Node.missed
+    $script:totalLines = [int]($coveredLines+$missedLines)
+    Write-Host "Missed Lines: $missedLines"
+    Write-Host "Total Lines: $totalLines"
 }
 
 function Format-Percentage {
@@ -275,13 +274,11 @@ function Set-Outcome {
             $script:level = "notice"
             $script:messageToDisplay = "Code Coverage $coveragePercentageString"
         }
-          
 }
 
-# Quality Gate Enforce
+# Enforce Quality Gate
 
-function Quality-Gate {
-
+function Enforce-Quality-Gate {
     if ($inputs.fail_below_threshold -eq "true") {
             Write-ActionInfo "  * fail_below_threshold: true"
         }
@@ -294,11 +291,10 @@ function Quality-Gate {
         Write-ActionInfo "Thowing error as Code Coverage is less than "minimum_coverage" is not met and 'fail_below_threshold' was true."
         throw "Code Coverage is less than Minimum Code Coverage Required"
     }
-
 }
 
 #Issue 26: FEATURE REQUEST: Display Coverage Percent along with Check
-                             
+
 function Update-PRCheck {
     param(
         [string]$reportData,
@@ -345,41 +341,41 @@ if ($inputs.skip_check_run -ne $true -and $inputs.publish_only_summary -eq $true
 
         Build-CoverageSummaryReport
         
-        Parse-XML
+        Parse-Coverage-XML
                 
         Format-Percentage
         
         Set-Output
         
-        $coverageSummaryData = [System.IO.File]::ReadAllText($script:coverage_report_path)     
+        $script:coverageSummaryData = [System.IO.File]::ReadAllText($script:coverage_report_path)     
         
-        Publish-ToCheckRun -ReportData $coverageSummaryData -ReportName $script:coverage_report_name -ReportTitle $script:coverage_report_title
+        Publish-ToCheckRun -ReportData $script:coverageSummaryData -ReportName $script:coverage_report_name -ReportTitle $script:coverage_report_title
         
-#         Update-PRCheck -ReportData $coverageSummaryData -ReportName $coverage_report_name -ReportTitle $script:messageToDisplay
+#       Update-PRCheck -ReportData $script:coverageSummaryData -ReportName $coverage_report_name -ReportTitle $script:messageToDisplay
 
-        Quality-Gate
+        Enforce-Quality-Gate
         
-        # Set-ActionOutput -Name coverageSummary -Value $coverageSummaryData
+        # Set-ActionOutput -Name coverageSummary -Value $script:coverageSummaryData
     }
 elseif ($inputs.skip_check_run -ne $true -and $inputs.publish_only_summary -ne $true )
     {
 
         Build-CoverageReport
         
-        Parse-XML
+        Parse-Coverage-XML
                 
         Format-Percentage
         
         Set-Output
         
-        $coverageSummaryData = [System.IO.File]::ReadAllText($script:coverage_report_path)
+        $script:coverageSummaryData = [System.IO.File]::ReadAllText($script:coverage_report_path)
 
-        Publish-ToCheckRun -ReportData $coverageSummaryData -ReportName $script:coverage_report_name -ReportTitle $script:coverage_report_title
+        Publish-ToCheckRun -ReportData $script:coverageSummaryData -ReportName $script:coverage_report_name -ReportTitle $script:coverage_report_title
 
-#         Update-PRCheck -ReportData $coverageSummaryData -ReportName $coverage_report_name -ReportTitle $script:messageToDisplay
+#         Update-PRCheck -ReportData $script:coverageSummaryData -ReportName $coverage_report_name -ReportTitle $script:messageToDisplay
 
-        Quality-Gate
-        # Set-ActionOutput -Name coverageSummary -Value $coverageSummaryData
+        Enforce-Quality-Gate
+        # Set-ActionOutput -Name coverageSummary -Value $script:coverageSummaryData
 
     }
 elseif ($inputs.skip_check_run -eq $true -and $inputs.publish_only_summary -eq $true )
@@ -389,16 +385,16 @@ elseif ($inputs.skip_check_run -eq $true -and $inputs.publish_only_summary -eq $
 
         Build-SummaryReport
         
-        Parse-XML
+        Parse-Coverage-XML
                 
         Format-Percentage
 
         Set-Output
         
-        $coverageSummary = [System.IO.File]::ReadAllText($script:coverage_summary_path)
+        $script:coverageSummary = [System.IO.File]::ReadAllText($script:coverage_summary_path)
 
-        Quality-Gate
-        # Set-ActionOutput -Name coverageSummary -Value $coverageSummary
+        Enforce-Quality-Gate
+        # Set-ActionOutput -Name coverageSummary -Value $script:coverageSummary
 
     }
 else {
@@ -406,17 +402,17 @@ else {
 
         Build-SummaryReport
         
-        Parse-XML
+        Parse-Coverage-XML
                 
         Format-Percentage
         
         Set-Output
         
-        $coverageSummary = [System.IO.File]::ReadAllText($script:coverage_summary_path)
+        $script:coverageSummary = [System.IO.File]::ReadAllText($script:coverage_summary_path)
         
-        Quality-Gate
+        Enforce-Quality-Gate
 
-        # Set-ActionOutput -Name coverageSummary -Value $coverageSummary
+        # Set-ActionOutput -Name coverageSummary -Value $script:coverageSummary
 
     }
     
