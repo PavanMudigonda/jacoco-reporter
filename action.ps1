@@ -163,10 +163,17 @@ function Publish-ToCheckRun {
             text    = $ReportData
         }
     }
+    Write-ActionInfo "$hdr | ConvertTo-Json"
+    Write-ActionInfo $url
+    Write-ActionInfo "$bdy | ConvertTo-Json"
+
     $response = Invoke-WebRequest -Headers $hdr $url -Method Post -Body ($bdy | ConvertTo-Json)
     # Grab Check ID
     $checkId = ( ConvertFrom-Json $response.Content ).id
+    $checkUrl = ( ConvertFrom-Json $response.Content ).url
     Write-ActionInfo "Check ID: $checkId"
+    Write-ActionInfo "Check ID: $checkUrl"
+    $script:checkUrl = $checkUrl
     $script:checkId = $checkId
 }
 
