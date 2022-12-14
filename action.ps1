@@ -158,7 +158,7 @@ function Publish-ToCheckRun {
         status     = 'completed'
         conclusion = 'neutral'
         output     = @{
-            title   = "Code Coverage ${coveragePercentageString}"
+            title   = "Code Coverage $script:coveragePercentageString"
             summary = "This run completed at ``$([datetime]::Now)``"
             text    = $ReportData
         }
@@ -241,37 +241,37 @@ function Set-Outcome {
     if ($script:coveragePercentage -lt $inputs.minimum_coverage -and $inputs.fail_below_threshold -eq "true") {
             $script:outcome = "failure"
             $script:level = "warning"
-            $script:messageToDisplay = "Code Coverage $coveragePercentageString"
+            $script:messageToDisplay = "Code Coverage $script:coveragePercentageString"
         }
 
     if ($script:coveragePercentage -ge $inputs.minimum_coverage -and $inputs.fail_below_threshold -eq "true") {
             $script:outcome = "success"
             $script:level = "notice"
-            $script:messageToDisplay = "Code Coverage $coveragePercentageString"
+            $script:messageToDisplay = "Code Coverage $script:coveragePercentageString"
         }
 
     if ($script:coveragePercentage -ge $inputs.minimum_coverage -and $inputs.fail_below_threshold -eq "false") {
             $script:outcome = "success"
             $script:level = "notice"
-            $script:messageToDisplay = "Code Coverage $coveragePercentageString"
+            $script:messageToDisplay = "Code Coverage $script:coveragePercentageString"
         }
 
     if ($script:coveragePercentage -ge $inputs.minimum_coverage -and $inputs.fail_below_threshold -eq "") {
             $script:outcome = "success"
             $script:level = "notice"
-            $script:messageToDisplay = "Code Coverage $coveragePercentageString"
+            $script:messageToDisplay = "Code Coverage $script:coveragePercentageString"
         }
 
     if ($script:coveragePercentage -lt $inputs.minimum_coverage -and $inputs.fail_below_threshold -eq "false") {
             $script:outcome = "success"
             $script:level = "notice"
-            $script:messageToDisplay = "Code Coverage $coveragePercentageString"
+            $script:messageToDisplay = "Code Coverage $script:coveragePercentageString"
         }
         
     if ($script:coveragePercentage -lt $inputs.minimum_coverage -and $inputs.fail_below_threshold -eq "") {
             $script:outcome = "success"
             $script:level = "notice"
-            $script:messageToDisplay = "Code Coverage $coveragePercentageString"
+            $script:messageToDisplay = "Code Coverage $script:coveragePercentageString"
         }
 }
 
