@@ -158,9 +158,8 @@ function Publish-ToCheckRun {
         status     = 'completed'
         conclusion = 'neutral'
         output     = @{
-            title   = $reportTitle
+            title   = "Code Coverage ${coveragePercentageString}"
             summary = "This run completed at ``$([datetime]::Now)``"
-            annotations = "Code Coverage ${coveragePercentageString}"
             text    = $ReportData
         }
     }
@@ -330,7 +329,6 @@ function Update-PRCheck {
     }
     Invoke-WebRequest -Headers $hdr $url -Method Patch -Body ($bdy | ConvertTo-Json)
 }
-
 
 # Publishing Report to GH Workflow
 
