@@ -149,7 +149,7 @@ function Publish-ToCheckRun {
     Write-ActionInfo "Adding Check Run"
     $url = "https://api.github.com/repos/$repoFullName/check-runs"
     $hdr = @{
-        Accept = 'application/vnd.github+json'
+        Accept = 'application/vnd.github.antiope-preview+json'
         Authorization = "token $ghToken"
     }
     $bdy = @{
@@ -158,15 +158,11 @@ function Publish-ToCheckRun {
         status     = 'completed'
         conclusion = 'neutral'
         output     = @{
-            title   = "Code Coverage $script:coveragePercentageString"
+            title   = $reportTitle
             summary = "This run completed at ``$([datetime]::Now)``"
             text    = $ReportData
         }
     }
-    Write-ActionInfo "$hdr | ConvertTo-Json"
-    Write-ActionInfo $url
-    Write-ActionInfo "$bdy | ConvertTo-Json"
-
     Invoke-WebRequest -Headers $hdr $url -Method Post -Body ($bdy | ConvertTo-Json)
     # Grab Check ID
     # $checkId = ( ConvertFrom-Json $response.Content ).id
