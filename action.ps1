@@ -183,42 +183,42 @@ function Set-Outcome {
         }
 
     if (($script:coveragePercentage -lt $inputs.minimum_coverage) -and ($inputs.fail_below_threshold -eq "true")) {
-            $script:outcome = "failure"
+            $script:status = "failure"
             $script:level = "warning"
             $script:messageToDisplay = "Code Coverage $script:coveragePercentageString"
         }
 
     if (($script:coveragePercentage -ge $inputs.minimum_coverage) -and ($inputs.fail_below_threshold -eq "true")) {
-            $script:outcome = "success"
+            $script:status = "success"
             $script:level = "notice"
             $script:messageToDisplay = "Code Coverage $script:coveragePercentageString"
         }
 
     if (($script:coveragePercentage -ge $inputs.minimum_coverage) -and ($inputs.fail_below_threshold -eq "false")) {
-            $script:outcome = "success"
+            $script:status = "success"
             $script:level = "notice"
             $script:messageToDisplay = "Code Coverage $script:coveragePercentageString"
         }
 
     if (($script:coveragePercentage -ge $inputs.minimum_coverage) -and ($inputs.fail_below_threshold -eq "")) {
-            $script:outcome = "success"
+            $script:status = "success"
             $script:level = "notice"
             $script:messageToDisplay = "Code Coverage $script:coveragePercentageString"
         }
 
     if (($script:coveragePercentage -lt $inputs.minimum_coverage) -and ($inputs.fail_below_threshold -eq "false")) {
-            $script:outcome = "success"
+            $script:status = "success"
             $script:level = "notice"
             $script:messageToDisplay = "Code Coverage $script:coveragePercentageString"
         }
         
     if (($script:coveragePercentage -lt $inputs.minimum_coverage) -and ($inputs.fail_below_threshold -eq "")) {
-            $script:outcome = "success"
+            $script:status = "success"
             $script:level = "notice"
             $script:messageToDisplay = "Code Coverage $script:coveragePercentageString"
         }
     if(($inputs.minimum_coverage -eq "") -or ($inputs.fail_below_threshold)){
-        $script:outcome = "success"
+        $script:status = "success"
         $script:level = 'notice'
         $script:messageToDisplay = "Code Coverage $script:coveragePercentageString"
     }
@@ -285,7 +285,8 @@ function Publish-ToCheckRun {
     param(
         [string]$reportData,
         [string]$reportName,
-        [string]$reportTitle
+        [string]$reportTitle,
+        [string]$outcome
     )
 
     Write-ActionInfo "Publishing Report to GH Workflow"
@@ -322,7 +323,7 @@ function Publish-ToCheckRun {
         name       = $reportName
         head_sha   = $ref
         status     = 'completed'
-        conclusion = $script:outcome
+        conclusion = $outcome
         output     = @{
             title   = "Code Coverage $script:coveragePercentageString"
             summary = "This run completed at ``$([datetime]::Now)``"
@@ -359,7 +360,7 @@ if ($inputs.skip_check_run -ne $true -and $inputs.publish_only_summary -eq $true
         
         $coverageSummaryData = [System.IO.File]::ReadAllText($script:coverage_report_path)     
         
-        Publish-ToCheckRun -ReportData $coverageSummaryData -ReportName "Code Coverage: $script:coveragePercentageString" -ReportTitle $script:coverage_report_title
+        Publish-ToCheckRun -ReportData $coverageSummaryData -ReportName "Code Coverage: $script:coveragePercentageString" -ReportTitle $script:coverage_report_title -outcome $Script:status
         
 #       Update-PRCheck -ReportData $script:coverageSummaryData -ReportName $coverage_report_name -ReportTitle $script:messageToDisplay
 
@@ -380,7 +381,7 @@ elseif ($inputs.skip_check_run -ne $true -and $inputs.publish_only_summary -ne $
         
         $coverageSummaryData = [System.IO.File]::ReadAllText($script:coverage_report_path)
 
-        Publish-ToCheckRun -ReportData $coverageSummaryData -ReportName "Code Coverage: $script:coveragePercentageString" -ReportTitle $script:coverage_report_title
+        Publish-ToCheckRun -ReportData $coverageSummaryData -ReportName "Code Coverage: $script:coveragePercentageString" -ReportTitle $script:coverage_report_title -outcome $script:status
 
 #       Update-PRCheck -ReportData $script:coverageSummaryData -ReportName $coverage_report_name -ReportTitle $script:messageToDisplay
 
