@@ -361,7 +361,7 @@ if ($inputs.skip_check_run -ne $true -and $inputs.publish_only_summary -eq $true
         
         $coverageSummaryData = [System.IO.File]::ReadAllText($script:coverage_report_path)     
         
-        Publish-ToCheckRun -ReportData $coverageSummaryData -ReportName "Code Coverage: $script:coveragePercentageString" -ReportTitle $script:coverage_report_title -outcome $Script:status -coveragePercentage $script:coveragePercentageString
+        Publish-ToCheckRun -ReportData $coverageSummaryData -ReportName "Code Coverage" -ReportTitle $script:coverage_report_title -outcome $Script:status -coveragePercentage $script:coveragePercentageString
         
 #       Update-PRCheck -ReportData $script:coverageSummaryData -ReportName $coverage_report_name -ReportTitle $script:messageToDisplay
 
@@ -382,7 +382,7 @@ elseif ($inputs.skip_check_run -ne $true -and $inputs.publish_only_summary -ne $
         
         $coverageSummaryData = [System.IO.File]::ReadAllText($script:coverage_report_path)
 
-        Publish-ToCheckRun -ReportData $coverageSummaryData -ReportName "Code Coverage: $script:coveragePercentageString" -ReportTitle $script:coverage_report_title -outcome $script:status -coveragePercentage $script:coveragePercentageString
+        Publish-ToCheckRun -ReportData $coverageSummaryData -ReportName "Code Coverage" -ReportTitle $script:coverage_report_title -outcome $script:status -coveragePercentage $script:coveragePercentageString
 
 #       Update-PRCheck -ReportData $script:coverageSummaryData -ReportName $coverage_report_name -ReportTitle $script:messageToDisplay
 
