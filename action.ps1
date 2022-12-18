@@ -299,43 +299,43 @@ function Enforce-QualityGate {
     }
 }
 
-#Issue 26: FEATURE REQUEST: Display Coverage Percent along with Check
+# #Issue 26: FEATURE REQUEST: Display Coverage Percent along with Check
 
-function Update-PRCheck {
-    param(
-        [string]$reportData,
-        [string]$reportName,
-        [string]$reportTitle
-    )
+# function Update-PRCheck {
+#     param(
+#         [string]$reportData,
+#         [string]$reportName,
+#         [string]$reportTitle
+#     )
     
-    Set-Outcome
+#     Set-Outcome
     
-    $ghToken = $inputs.github_token
-    $ctx = Get-ActionContext
-    $repo = Get-ActionRepo
-    $repoFullName = "$($repo.Owner)/$($repo.Repo)"    
-    Write-ActionInfo "Resolved REF as $ref"
-    Write-ActionInfo "Resolve Repo Full Name as $repoFullName"
-    Write-ActionInfo "Update Annotation Check to: $checkId"
-    $checkId = $script:checkId
-    Write-ActionInfo "checkId: $checkId"
-    $url = "https://api.github.com/repos/$repoFullName/check-runs/$checkId"
-    $hdr = @{
-        Accept = 'application/vnd.github+json'
-        Authorization = "token $ghToken"
-    }
-    $bdy = @{
-        name       = $reportName
-        status     = 'completed'
-        conclusion = $script:outcome
-        output     = @{
-            title   = $reportTitle
-            summary = "This run completed at ``$([datetime]::Now)``"
-            text    = $ReportData
-        }
-    }
-    Invoke-WebRequest -Headers $hdr $url -Method Patch -Body ($bdy | ConvertTo-Json)
-}
+#     $ghToken = $inputs.github_token
+#     $ctx = Get-ActionContext
+#     $repo = Get-ActionRepo
+#     $repoFullName = "$($repo.Owner)/$($repo.Repo)"    
+#     Write-ActionInfo "Resolved REF as $ref"
+#     Write-ActionInfo "Resolve Repo Full Name as $repoFullName"
+#     Write-ActionInfo "Update Annotation Check to: $checkId"
+#     $checkId = $script:checkId
+#     Write-ActionInfo "checkId: $checkId"
+#     $url = "https://api.github.com/repos/$repoFullName/check-runs/$checkId"
+#     $hdr = @{
+#         Accept = 'application/vnd.github+json'
+#         Authorization = "token $ghToken"
+#     }
+#     $bdy = @{
+#         name       = $reportName
+#         status     = 'completed'
+#         conclusion = $script:outcome
+#         output     = @{
+#             title   = $reportTitle
+#             summary = "This run completed at ``$([datetime]::Now)``"
+#             text    = $ReportData
+#         }
+#     }
+#     Invoke-WebRequest -Headers $hdr $url -Method Patch -Body ($bdy | ConvertTo-Json)
+# }
 
 # Publishing Report to GH Workflow
 
