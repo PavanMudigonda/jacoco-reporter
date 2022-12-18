@@ -182,41 +182,46 @@ function Set-Outcome {
             Write-ActionInfo "  * fail_below_threshold: true"
         }
 
-    if ($script:coveragePercentage -lt $inputs.minimum_coverage -and $inputs.fail_below_threshold -eq "true") {
+    if (($script:coveragePercentage -lt $inputs.minimum_coverage) -and ($inputs.fail_below_threshold -eq "true")) {
             $script:outcome = "failure"
             $script:level = "warning"
             $script:messageToDisplay = "Code Coverage $script:coveragePercentageString"
         }
 
-    if ($script:coveragePercentage -ge $inputs.minimum_coverage -and $inputs.fail_below_threshold -eq "true") {
+    if (($script:coveragePercentage -ge $inputs.minimum_coverage) -and ($inputs.fail_below_threshold -eq "true")) {
             $script:outcome = "success"
             $script:level = "notice"
             $script:messageToDisplay = "Code Coverage $script:coveragePercentageString"
         }
 
-    if ($script:coveragePercentage -ge $inputs.minimum_coverage -and $inputs.fail_below_threshold -eq "false") {
+    if (($script:coveragePercentage -ge $inputs.minimum_coverage) -and ($inputs.fail_below_threshold -eq "false")) {
             $script:outcome = "success"
             $script:level = "notice"
             $script:messageToDisplay = "Code Coverage $script:coveragePercentageString"
         }
 
-    if ($script:coveragePercentage -ge $inputs.minimum_coverage -and $inputs.fail_below_threshold -eq "") {
+    if (($script:coveragePercentage -ge $inputs.minimum_coverage) -and ($inputs.fail_below_threshold -eq "")) {
             $script:outcome = "success"
             $script:level = "notice"
             $script:messageToDisplay = "Code Coverage $script:coveragePercentageString"
         }
 
-    if ($script:coveragePercentage -lt $inputs.minimum_coverage -and $inputs.fail_below_threshold -eq "false") {
+    if (($script:coveragePercentage -lt $inputs.minimum_coverage) -and ($inputs.fail_below_threshold -eq "false")) {
             $script:outcome = "success"
             $script:level = "notice"
             $script:messageToDisplay = "Code Coverage $script:coveragePercentageString"
         }
         
-    if ($script:coveragePercentage -lt $inputs.minimum_coverage -and $inputs.fail_below_threshold -eq "") {
+    if (($script:coveragePercentage -lt $inputs.minimum_coverage) -and ($inputs.fail_below_threshold -eq "")) {
             $script:outcome = "success"
             $script:level = "notice"
             $script:messageToDisplay = "Code Coverage $script:coveragePercentageString"
         }
+    if(($inputs.minimum_coverage -eq "") -or ($inputs.fail_below_threshold)){
+        $script:outcome = "success"
+        $script:level = 'notice'
+        $script:messageToDisplay = "Code Coverage $script:coveragePercentageString"
+    }
 }
 
 # Enforce Quality Gate
