@@ -217,7 +217,7 @@ function Set-Outcome {
             $script:level = "notice"
             $script:messageToDisplay = "Code Coverage $script:coveragePercentageString"
         }
-    if(($inputs.minimum_coverage -eq "") -or ($inputs.fail_below_threshold)){
+    if(($inputs.minimum_coverage -eq "") -or ($inputs.fail_below_threshold -eq "")){
         $script:status = "success"
         $script:level = 'notice'
         $script:messageToDisplay = "Code Coverage $script:coveragePercentageString"
@@ -356,7 +356,7 @@ if ($inputs.skip_check_run -ne $true -and $inputs.publish_only_summary -eq $true
                 
         Format-Percentage
         
-        Set-Output
+        Set-Outcome
         
         $coverageSummaryData = [System.IO.File]::ReadAllText($script:coverage_report_path)     
         
@@ -377,7 +377,7 @@ elseif ($inputs.skip_check_run -ne $true -and $inputs.publish_only_summary -ne $
                 
         Format-Percentage
         
-        Set-Output
+        Set-Outcome
         
         $coverageSummaryData = [System.IO.File]::ReadAllText($script:coverage_report_path)
 
@@ -400,7 +400,7 @@ elseif ($inputs.skip_check_run -eq $true -and $inputs.publish_only_summary -eq $
                 
         Format-Percentage
 
-        Set-Output
+        Set-Outcome
         
         # $coverageSummary = [System.IO.File]::ReadAllText($script:coverage_summary_path)
 
@@ -416,7 +416,7 @@ else {
                 
         Format-Percentage
         
-        Set-Output
+        Set-Outcome
         
         # $coverageSummary = [System.IO.File]::ReadAllText($script:coverage_summary_path)
         
