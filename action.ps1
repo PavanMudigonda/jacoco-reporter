@@ -286,7 +286,8 @@ function Publish-ToCheckRun {
         [string]$reportData,
         [string]$reportName,
         [string]$reportTitle,
-        [string]$outcome
+        [string]$outcome,
+        [string]$coveragePercentage
     )
 
     Write-ActionInfo "Publishing Report to GH Workflow"
@@ -325,7 +326,7 @@ function Publish-ToCheckRun {
         status     = 'completed'
         conclusion = $outcome
         output     = @{
-            title   = "Code Coverage $script:coveragePercentageString"
+            title   = "Code Coverage $coveragePercentage"
             summary = "This run completed at ``$([datetime]::Now)``"
             text    = $ReportData
         }
@@ -360,7 +361,7 @@ if ($inputs.skip_check_run -ne $true -and $inputs.publish_only_summary -eq $true
         
         $coverageSummaryData = [System.IO.File]::ReadAllText($script:coverage_report_path)     
         
-        Publish-ToCheckRun -ReportData $coverageSummaryData -ReportName "Code Coverage: $script:coveragePercentageString" -ReportTitle $script:coverage_report_title -outcome $Script:status
+        Publish-ToCheckRun -ReportData $coverageSummaryData -ReportName "Code Coverage: $script:coveragePercentageString" -ReportTitle $script:coverage_report_title -outcome $Script:status -coveragePercentage $script:coveragePercentageString
         
 #       Update-PRCheck -ReportData $script:coverageSummaryData -ReportName $coverage_report_name -ReportTitle $script:messageToDisplay
 
@@ -381,7 +382,7 @@ elseif ($inputs.skip_check_run -ne $true -and $inputs.publish_only_summary -ne $
         
         $coverageSummaryData = [System.IO.File]::ReadAllText($script:coverage_report_path)
 
-        Publish-ToCheckRun -ReportData $coverageSummaryData -ReportName "Code Coverage: $script:coveragePercentageString" -ReportTitle $script:coverage_report_title -outcome $script:status
+        Publish-ToCheckRun -ReportData $coverageSummaryData -ReportName "Code Coverage: $script:coveragePercentageString" -ReportTitle $script:coverage_report_title -outcome $script:status -coveragePercentage $script:coveragePercentageString
 
 #       Update-PRCheck -ReportData $script:coverageSummaryData -ReportName $coverage_report_name -ReportTitle $script:messageToDisplay
 
