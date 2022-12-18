@@ -326,7 +326,7 @@ function Publish-ToCheckRun {
         status     = 'completed'
         conclusion = $outcome
         output     = @{
-            title   = "Code Coverage $coveragePercentage"
+            title   = "Coverage $coveragePercentage"
             summary = "This run completed at ``$([datetime]::Now)``"
             text    = $ReportData
         }
