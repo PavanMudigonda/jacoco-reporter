@@ -106,6 +106,10 @@ permissions:
 
 <img width="1127" alt="image" src="https://user-images.githubusercontent.com/86745613/169406925-b1029ccb-ed62-4d6a-aa80-da81eca1601d.png">
 
+### Sample PR Check Screenshot: Not only one Code Coverage Check Appears.
+
+<img width="749" alt="image" src="https://user-images.githubusercontent.com/86745613/209163788-af98f77d-d80d-4986-8c09-e9f03ef86e15.png">
+
 ### Sample Gradle Build Repo 
 
 https://github.com/PavanMudigonda/jacoco-playground
