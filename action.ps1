@@ -326,7 +326,7 @@ function Publish-ToCheckRun {
         status     = 'completed'
         conclusion = $outcome
         output     = @{
-            title   = "Coverage $coveragePercentage"
+            title   = "Code Coverage $coveragePercentage"
             summary = "This run completed at ``$([datetime]::Now)``"
             text    = $ReportData
         }
@@ -359,6 +359,8 @@ if ($inputs.skip_check_run -ne $true -and $inputs.publish_only_summary -eq $true
         
         Set-Outcome
         
+        Set-Output
+        
         $coverageSummaryData = [System.IO.File]::ReadAllText($script:coverage_report_path)     
         
         Publish-ToCheckRun -ReportData $coverageSummaryData -ReportName "Code Coverage" -ReportTitle $script:coverage_report_title -outcome $Script:status -coveragePercentage $script:coveragePercentageString
@@ -379,6 +381,8 @@ elseif ($inputs.skip_check_run -ne $true -and $inputs.publish_only_summary -ne $
         Format-Percentage
         
         Set-Outcome
+        
+        Set-Output
         
         $coverageSummaryData = [System.IO.File]::ReadAllText($script:coverage_report_path)
 
@@ -403,6 +407,8 @@ elseif ($inputs.skip_check_run -eq $true -and $inputs.publish_only_summary -eq $
 
         Set-Outcome
         
+        Set-Output
+        
         # $coverageSummary = [System.IO.File]::ReadAllText($script:coverage_summary_path)
 
         Enforce-QualityGate
@@ -418,6 +424,8 @@ else {
         Format-Percentage
         
         Set-Outcome
+        
+        Set-Output
         
         # $coverageSummary = [System.IO.File]::ReadAllText($script:coverage_summary_path)
         
