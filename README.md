@@ -8,7 +8,7 @@ to the Workflow Run as a Check Run. You can even set threshold coverage percenta
 * I wrote this action as opensource during my vacation time.
 * This actions is used by hundreds of repos in my organization and many other prviate org repos.
 
-###        If you like my Github Action, please **STAR ⭐** it.
+##        Just one request. If you are using my Github Action, please **STAR ⭐** it.
 
 ## Samples
 
