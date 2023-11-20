@@ -28,7 +28,7 @@ jobs:
       # generates coverage-report.md and publishes as checkrun
       - name: JaCoCo Code Coverage Report
         id: jacoco_reporter
-        uses: PavanMudigonda/jacoco-reporter@v4.8
+        uses: PavanMudigonda/jacoco-reporter@v4.9
         with:
           coverage_results_path: jacoco-report/test.xml
           coverage_report_name: Coverage
