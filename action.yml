@@ -31,7 +31,8 @@ inputs:
       GITHUB_TOKEN to authenticate against API calls to attach
       report to Workflow Run.
     required: false
-    
+    default: ${{github.token}}
+
   skip_check_run:
     description: |
       If true, will skip attaching the Tests Result report to
