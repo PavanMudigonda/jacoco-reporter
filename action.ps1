@@ -54,7 +54,7 @@ function Build-CoverageReport
         $script:coverage_report_name = "COVERAGE_RESULTS_$([datetime]::Now.ToString('yyyyMMdd_hhmmss'))"
     }
     if (-not $coverage_report_title) {
-        $script:coverage_report_title = $report_name
+        $script:coverage_report_title = $script:coverage_report_name
     }
 
         $script:coverage_report_path = Join-Path $test_results_dir coverage-results.md
@@ -80,7 +80,7 @@ function Build-CoverageSummaryReport
         $script:coverage_report_name = "COVERAGE_RESULTS_$([datetime]::Now.ToString('yyyyMMdd_hhmmss'))"
     }
     if (-not $coverage_report_title) {
-        $script:coverage_report_title = $report_name
+        $script:coverage_report_title = $script:coverage_report_name
     }
 
     $script:coverage_report_path = Join-Path $test_results_dir coverage-results.md
@@ -103,7 +103,7 @@ function Build-SummaryReport
         $script:coverage_report_name = "COVERAGE_RESULTS_$([datetime]::Now.ToString('yyyyMMdd_hhmmss'))"
     }
     if (-not $coverage_report_title) {
-        $script:coverage_report_title = $report_name
+        $script:coverage_report_title = $script:coverage_report_name
     }
 
     $script:coverage_summary_path = Join-Path $test_results_dir coverage-summary.md
