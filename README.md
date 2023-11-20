@@ -62,7 +62,7 @@ This Action defines the following formal inputs.
 | **`coverage_results_path`**  | true | Path to the JaCoCo Code Coverage XML format file which will be used to generate a report. 
 | **`coverage_report_name`** | false | The name of the code coverage report object that will be attached to the Workflow Run.  Defaults to the name `COVERAGE_RESULTS_<datetime>` where `<datetime>` is in the form `yyyyMMdd_hhmmss`.
 | **`coverage_report_title`** | false | The title of the code coverage report that will be embedded in the report itself, which defaults to the same as the `coverage_report_name` input.
-|**`github_token`** | true | Input the GITHUB TOKEN Or Personal Access Token you would like to use. Recommended to use GitHub auto generated token ${{ secrets.GITHUB_TOKEN }}
+|**`github_token`** | false | Input the GITHUB TOKEN Or Personal Access Token you would like to use. Defaults to the auto generated token. Recommended to use GitHub auto generated token ${{ secrets.GITHUB_TOKEN }}.
 |**`minimum_coverage`** | false | Input the minimum code coverage recommended.
 |**`fail_below_threshold`** | false | Set True to fail the action and False to let it pass.
 |**`skip_check_run`** | false | If true, will skip attaching the Coverage Result report to the Workflow Run using a Check Run. Useful if your report has 65k characters that is not accepted by Github REST and GraphQL APIs
