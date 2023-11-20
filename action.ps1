@@ -377,16 +377,16 @@ elseif ($inputs.skip_check_run -ne $true -and $inputs.publish_only_summary -ne $
         Build-CoverageReport
 
         Parse-CoverageXML
-                
+
         Format-Percentage
-        
+
         Set-Outcome
-        
+
         Set-Output
-        
+
         $coverageSummaryData = [System.IO.File]::ReadAllText($script:coverage_report_path)
 
-        Publish-ToCheckRun -ReportData $coverageSummaryData -ReportName "Code Coverage" -ReportTitle $script:coverage_report_title -outcome $script:status -coveragePercentage $script:coveragePercentageString
+        Publish-ToCheckRun -ReportData $coverageSummaryData -ReportName $script:coverage_report_name -ReportTitle $script:coverage_report_title -outcome $script:status -coveragePercentage $script:coveragePercentageString
 
 #       Update-PRCheck -ReportData $script:coverageSummaryData -ReportName $coverage_report_name -ReportTitle $script:messageToDisplay
 
