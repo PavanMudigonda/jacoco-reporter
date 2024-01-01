@@ -117,6 +117,7 @@ function Build-SummaryReport
     
 }
 function Publish-JobSummary {
+    Build-SummaryReport
     $coverageSummary = [System.IO.File]::ReadAllText($script:coverage_summary_path)
     Set-ActionOutput -Name coverageSummary -Value $coverageSummary
 }
