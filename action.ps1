@@ -369,7 +369,7 @@ if ($inputs.skip_check_run -ne $true -and $inputs.publish_only_summary -eq $true
 
         Enforce-QualityGate
         
-        # Set-ActionOutput -Name coverageSummary -Value $script:coverageSummaryData
+        Set-ActionOutput -Name coverageSummary -Value $script:coverageSummaryData
     }
 elseif ($inputs.skip_check_run -ne $true -and $inputs.publish_only_summary -ne $true )
     {
@@ -391,7 +391,7 @@ elseif ($inputs.skip_check_run -ne $true -and $inputs.publish_only_summary -ne $
 #       Update-PRCheck -ReportData $script:coverageSummaryData -ReportName $coverage_report_name -ReportTitle $script:messageToDisplay
 
         Enforce-QualityGate
-        # Set-ActionOutput -Name coverageSummary -Value $script:coverageSummaryData
+        Set-ActionOutput -Name coverageSummary -Value $script:coverageSummaryData
 
     }
 elseif ($inputs.skip_check_run -eq $true -and $inputs.publish_only_summary -eq $true )
@@ -409,10 +409,10 @@ elseif ($inputs.skip_check_run -eq $true -and $inputs.publish_only_summary -eq $
         
         Set-Output
         
-        # $coverageSummary = [System.IO.File]::ReadAllText($script:coverage_summary_path)
+        $coverageSummary = [System.IO.File]::ReadAllText($script:coverage_summary_path)
 
         Enforce-QualityGate
-        # Set-ActionOutput -Name coverageSummary -Value $script:coverageSummary
+        Set-ActionOutput -Name coverageSummary -Value $script:coverageSummary
     }
 else {
         Build-CoverageReport
@@ -427,10 +427,10 @@ else {
         
         Set-Output
         
-        # $coverageSummary = [System.IO.File]::ReadAllText($script:coverage_summary_path)
+        $coverageSummary = [System.IO.File]::ReadAllText($script:coverage_summary_path)
         
         Enforce-QualityGate
 
-        # Set-ActionOutput -Name coverageSummary -Value $script:coverageSummary
+        Set-ActionOutput -Name coverageSummary -Value $script:coverageSummary
     }
     
