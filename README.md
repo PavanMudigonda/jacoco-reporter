@@ -1,4 +1,4 @@
-# JaCoCo Code Coverage Reporter
+# JaCoCo Code Coverage Reporter v5.0
 
 GitHub Action to Publish JaCoCo Format Code Coverage XML and attach it
 to the Workflow Run as a Check Run. You can even set threshold coverage percentage and fail the action.
