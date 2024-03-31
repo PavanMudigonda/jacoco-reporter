@@ -58,14 +58,26 @@ function Build-CoverageReport
     }
 
         $script:coverage_report_path = Join-Path $test_results_dir coverage-results.md
+        # Add logging to check the variable and file existence
+        Write-Output "coverage_report_path: $script:coverage_report_path"
+
+        if (Test-Path $script:coverage_report_path) {
+            Write-Output "File exists at path"
+        } else {
+            Write-Output "File does not exist at path"
+        }
         & "$PSScriptRoot/jacoco-report/jacocoxml2md.ps1" -Verbose `
             -xmlFile $script:coverage_results_path `
             -mdFile $script:coverage_report_path -xslParams @{
                 reportTitle = $script:coverage_report_title
             }
 
-        & "$PSScriptRoot/jacoco-report/embedmissedlines.ps1" -mdFile $script:coverage_report_path
-
+        if ($null -ne $script:coverage_report_path) {
+            & "$PSScriptRoot/jacoco-report/embedmissedlines.ps1" -mdFile $script:coverage_report_path
+        } else {
+            Write-Output "Error: mdFilePath is null"
+            exit 1
+        }
 }
 
 #Feature# 2 (added to handle 65k chars limitation on Github API scenario)
@@ -84,6 +96,14 @@ function Build-CoverageSummaryReport
     }
 
     $script:coverage_report_path = Join-Path $test_results_dir coverage-results.md
+    # Add logging to check the variable and file existence
+    Write-Output "coverage_report_path: $script:coverage_report_path"
+
+    if (Test-Path $script:coverage_report_path) {
+        Write-Output "File exists at path"
+    } else {
+        Write-Output "File does not exist at path"
+    }
     & "$PSScriptRoot/jacoco-report/jacocoxmlsummary2md.ps1" -Verbose `
         -xmlFile $script:coverage_results_path `
         -mdFile $script:coverage_report_path -xslParams @{
@@ -107,6 +127,14 @@ function Build-SummaryReport
     }
 
     $script:coverage_summary_path = Join-Path $test_results_dir coverage-summary.md
+    # Add logging to check the variable and file existence
+    Write-Output "coverage_report_path: $script:coverage_report_path"
+
+    if (Test-Path $script:coverage_report_path) {
+        Write-Output "File exists at path"
+    } else {
+        Write-Output "File does not exist at path"
+    }
     & "$PSScriptRoot/jacoco-report/buildsummary2md.ps1" -Verbose `
         -xmlFile $script:coverage_results_path `
         -mdFile $script:coverage_summary_path -xslParams @{
