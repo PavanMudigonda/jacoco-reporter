@@ -40,13 +40,18 @@ jobs:
           publish_only_summary: false
       
       # Publish Coverage Job Summary  # Optional
-     - name: Add Coverage Job Summary
-       run: echo "${{ steps.jacoco_reporter.outputs.coverageSummary }}" >> $GITHUB_STEP_SUMMARY
+      - name: Add Jacocoo report to workflow run summary
+        run: |
+          echo "| Outcome | Value |" >> $GITHUB_STEP_SUMMARY
+          echo "| --- | --- |" >> $GITHUB_STEP_SUMMARY
+          echo "| Code Coverage % | ${{ steps.jacoco_reporter.outputs.coverage_percentage }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| :heavy_check_mark: Number of Lines Covered | ${{ steps.jacoco_reporter.outputs.covered_lines }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| :x: Number of Lines Missed | ${{ steps.jacoco_reporter.outputs.missed_lines }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Total Number of Lines | ${{ steps.jacoco_reporter.outputs.total_lines }} |" >> $GITHUB_STEP_SUMMARY
           
       # uploads the coverage-report.md artifact  # Optional
-
      - name: Upload Code Coverage Artifacts
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v4
         with:
           name: code-coverage-report-markdown
           path: */coverage-results.md 
@@ -80,8 +85,6 @@ This Action defines the following formal outputs.
 | **`covered_lines`** | Total Covered Lines
 | **`missed_lines`** | Total missed Lines
 | **`total_lines`** | Total Code Lines
-| **`coverageSummary`** | code coverage summary data mardown variable. Use this variable to append to $GITHUB_STEP_SUMMARY to publish summary.
-
 
 ### Important Notes:-
 
