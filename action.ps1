@@ -102,6 +102,7 @@ function Build-SummaryReport
     if (-not $script:coverage_report_name) {
         $script:coverage_report_name = "COVERAGE_RESULTS_$([datetime]::Now.ToString('yyyyMMdd_hhmmss'))"
     }
+
     if (-not $coverage_report_title) {
         $script:coverage_report_title = $script:coverage_report_name
     }
@@ -112,8 +113,14 @@ function Build-SummaryReport
         -mdFile $script:coverage_summary_path -xslParams @{
             reportTitle = $script:coverage_report_title
         }
-}
 
+    
+}
+function Publish-JobSummary {
+    Build-SummaryReport
+    $coverageSummary = [System.IO.File]::ReadAllText($script:coverage_summary_path)
+    Set-ActionOutput -Name coverageSummary -Value $coverageSummary
+}
 
 function Parse-CoverageXML {
     # Parse XML
@@ -365,11 +372,10 @@ if ($inputs.skip_check_run -ne $true -and $inputs.publish_only_summary -eq $true
 
         Publish-ToCheckRun -ReportData $coverageSummaryData -ReportName $script:coverage_report_name -ReportTitle $script:coverage_report_title -outcome $Script:status -coveragePercentage $script:coveragePercentageString
 
-#       Update-PRCheck -ReportData $script:coverageSummaryData -ReportName $coverage_report_name -ReportTitle $script:messageToDisplay
-
         Enforce-QualityGate
+
+        Publish-JobSummary
         
-        # Set-ActionOutput -Name coverageSummary -Value $script:coverageSummaryData
     }
 elseif ($inputs.skip_check_run -ne $true -and $inputs.publish_only_summary -ne $true )
     {
@@ -388,11 +394,9 @@ elseif ($inputs.skip_check_run -ne $true -and $inputs.publish_only_summary -ne $
 
         Publish-ToCheckRun -ReportData $coverageSummaryData -ReportName $script:coverage_report_name -ReportTitle $script:coverage_report_title -outcome $script:status -coveragePercentage $script:coveragePercentageString
 
-#       Update-PRCheck -ReportData $script:coverageSummaryData -ReportName $coverage_report_name -ReportTitle $script:messageToDisplay
-
         Enforce-QualityGate
-        # Set-ActionOutput -Name coverageSummary -Value $script:coverageSummaryData
 
+        Publish-JobSummary
     }
 elseif ($inputs.skip_check_run -eq $true -and $inputs.publish_only_summary -eq $true )
     {
@@ -409,10 +413,9 @@ elseif ($inputs.skip_check_run -eq $true -and $inputs.publish_only_summary -eq $
         
         Set-Output
         
-        # $coverageSummary = [System.IO.File]::ReadAllText($script:coverage_summary_path)
-
         Enforce-QualityGate
-        # Set-ActionOutput -Name coverageSummary -Value $script:coverageSummary
+
+        Publish-JobSummary
     }
 else {
         Build-CoverageReport
@@ -427,10 +430,9 @@ else {
         
         Set-Output
         
-        # $coverageSummary = [System.IO.File]::ReadAllText($script:coverage_summary_path)
-        
         Enforce-QualityGate
 
-        # Set-ActionOutput -Name coverageSummary -Value $script:coverageSummary
+        Publish-JobSummary
+
     }
     
