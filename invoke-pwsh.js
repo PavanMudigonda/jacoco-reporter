@@ -20,7 +20,7 @@ async function run() {
                 await exec.exec('brew install --cask powershell');
                 pwshPath = which.sync('pwsh', { nothrow: true });
                 if (!pwshPath) {
-                    throw new Error('PowerShell (pwsh) installation failed.');
+                    throw new Error('PowerShell (pwsh) installation failed on macOS.');
                 }
             }
             else if (os.platform() === 'win32') {
