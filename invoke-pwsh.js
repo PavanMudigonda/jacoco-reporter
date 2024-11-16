@@ -33,7 +33,7 @@ async function run() {
                     // if choco is not found, download and install pwsh
                     let wingetPath = which.sync('winget', { nothrow: true });
                     if (wingetPath) {
-                        await exec.exec('winget install --id Microsoft.PowerShell.Preview --source winget');
+                        await exec.exec('winget install --id Microsoft.PowerShell --source winget');
                     }
                 }
             }
