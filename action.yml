@@ -1,4 +1,3 @@
-
 ## This is a SAMPLE metadata file for a GitHub Action.  For more info:
 ##    https://help.github.com/en/articles/metadata-syntax-for-github-actions
 
@@ -76,6 +75,12 @@ inputs:
       If true, will skip attaching the Tests Result report to the 
       Workflow Run using a Check Run. Useful if your report has 65k 
       characters that is not accepted by Github REST and GraphQL APIs
+    required: false
+
+  ghes_api_endpoint:
+    description: |
+      The GHES API endpoint to use when running on GitHub Enterprise Server.
+      If not provided, the default GitHub cloud API endpoint will be used.
     required: false
 
 ## Here you describe your *formal* outputs.

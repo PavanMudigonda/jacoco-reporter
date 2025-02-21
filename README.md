@@ -38,6 +38,7 @@ jobs:
           minimum_coverage: 80
           fail_below_threshold: false
           publish_only_summary: false
+          ghes_api_endpoint: ${{ secrets.GHES_API_ENDPOINT }}
       
       # Publish Coverage Job Summary  # Optional
       - name: Add Jacocoo report to workflow run summary
@@ -72,6 +73,7 @@ This Action defines the following formal inputs.
 |**`fail_below_threshold`** | false | Set True to fail the action and False to let it pass.
 |**`skip_check_run`** | false | If true, will skip attaching the Coverage Result report to the Workflow Run using a Check Run. Useful if your report has 65k characters that is not accepted by Github REST and GraphQL APIs
 |**`publish_only_summary`** | false | If true, will publish only a summary table of the Coverage Result report to the Workflow Run using a Check Run. Useful if your full coverage report has 65k characters that is not accepted by Github REST and GraphQL APIs
+|**`ghes_api_endpoint`** | false | The GHES API endpoint to use when running on GitHub Enterprise Server. If not provided, the default GitHub cloud API endpoint will be used.
 
 ### Outputs
 

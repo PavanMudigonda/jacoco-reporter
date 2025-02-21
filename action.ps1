@@ -31,6 +31,7 @@ $inputs = @{
     minimum_coverage      = Get-ActionInput minimum_coverage
     fail_below_threshold  = Get-ActionInput fail_below_threshold
     publish_only_summary  = Get-ActionInput publish_only_summary
+    ghes_api_endpoint     = Get-ActionInput ghes_api_endpoint
 }
 
 $test_results_dir = Join-Path $PWD _TMP
@@ -316,6 +317,9 @@ function Publish-ToCheckRun {
 
     Write-ActionInfo "Adding Check Run"
     $url = "https://api.github.com/repos/$repoFullName/check-runs"
+    if ($inputs.ghes_api_endpoint) {
+        $url = "$($inputs.ghes_api_endpoint)/repos/$repoFullName/check-runs"
+    }
     $hdr = @{
         Accept = 'application/vnd.github+json'
         Authorization = "token $ghToken"
