@@ -67,8 +67,23 @@ const exec = __webpack_require__(871);
 async function run() {
     try {
         const pwshFolder = __dirname.replace(/[/\\]_init$/, '');
-        const pwshScript = `${pwshFolder}/action.ps1`
-        await exec.exec('pwsh', [ '-f', pwshScript ]);
+        const pwshScript = `${pwshFolder}/action.ps1`;
+
+        // Check if pwsh is installed
+        let pwshInstalled = true;
+        try {
+            await exec.exec('pwsh', ['-v']);
+        } catch (error) {
+            pwshInstalled = false;
+        }
+
+        // If pwsh is not installed, install it
+        if (!pwshInstalled) {
+            await exec.exec('apt-get', ['update']);
+            await exec.exec('apt-get', ['install', '-y', 'powershell']);
+        }
+
+        await exec.exec('pwsh', ['-f', pwshScript]);
     } catch (error) {
         core.setFailed(error.message);
     }
@@ -85,6 +100,7 @@ run();
 
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) { resolve(value); }); }
     return new (P || (P = Promise))(function (resolve, reject) {
         function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
         function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
@@ -1000,6 +1016,7 @@ module.exports = require("assert");
 
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) { resolve(value); }); }
     return new (P || (P = Promise))(function (resolve, reject) {
         function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
         function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
@@ -1297,6 +1314,7 @@ function copyFile(srcFile, destFile, force) {
 
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) { resolve(value); }); }
     return new (P || (P = Promise))(function (resolve, reject) {
         function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
         function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
@@ -1554,6 +1572,7 @@ module.exports = require("fs");
 
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) { resolve(value); }); }
     return new (P || (P = Promise))(function (resolve, reject) {
         function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
         function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
