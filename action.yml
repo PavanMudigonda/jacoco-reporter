@@ -1,20 +1,13 @@
-
-## This is a SAMPLE metadata file for a GitHub Action.  For more info:
-##    https://help.github.com/en/articles/metadata-syntax-for-github-actions
-
 name: jacoco-reporter
 author: Pavan Mudigonda
 description: |
   Publishes JaCoCo format Coverage Report in GitHub Actions as Checksuite and enforces Code Coverage Quality Gate.
 
-## Here you describe your *formal* inputs -- those that are
-## documented and can be displayed by the marketplace.
-## You also use these to identify the *required* inputs.
 inputs:
 
   coverage_results_path:
     description: |
-      Path to the JaCoCo coverage results file which will be used to generate
+      Comma-separated list of paths to the JaCoCo coverage results files which will be used to generate
       a report. The only coverage results format supported is the
       JaCoCo XML schema.
     required: true
@@ -78,7 +71,6 @@ inputs:
       characters that is not accepted by Github REST and GraphQL APIs
     required: false
 
-## Here you describe your *formal* outputs.
 outputs:
   
   coverage_percentage:
@@ -97,8 +89,6 @@ branding:
   color: purple
   icon: check-circle
 
-## Even though the Action logic may be implemented
-## in PWSH, we still need a NodeJS entry point
 runs:
   using: node20
   main: _init/index.js

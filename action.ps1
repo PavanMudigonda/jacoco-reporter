@@ -48,24 +48,26 @@ function Build-CoverageReport
     Write-ActionInfo "Building human-readable code-coverage report"
     $script:coverage_report_name = $inputs.coverage_report_name
     $script:coverage_report_title = $inputs.coverage_report_title
-    $script:coverage_results_path = $inputs.coverage_results_path
+    $script:coverage_results_paths = $inputs.coverage_results_path -split ','
 
     if (-not $script:coverage_report_name) {
         $script:coverage_report_name = "COVERAGE_RESULTS_$([datetime]::Now.ToString('yyyyMMdd_hhmmss'))"
     }
     if (-not $coverage_report_title) {
-        $script:coverage_report_title = $script:coverage_report_name
+        $coverage_report_title = $script:coverage_report_name
     }
 
-        $script:coverage_report_path = Join-Path $test_results_dir coverage-results.md
+    $script:coverage_report_path = Join-Path $test_results_dir coverage-results.md
+
+    foreach ($coverage_results_path in $script:coverage_results_paths) {
         & "$PSScriptRoot/jacoco-report/jacocoxml2md.ps1" -Verbose `
-            -xmlFile $script:coverage_results_path `
+            -xmlFile $coverage_results_path `
             -mdFile $script:coverage_report_path -xslParams @{
-                reportTitle = $script:coverage_report_title
+                reportTitle = $coverage_report_title
             }
 
         & "$PSScriptRoot/jacoco-report/embedmissedlines.ps1" -mdFile $script:coverage_report_path
-
+    }
 }
 
 #Feature# 2 (added to handle 65k chars limitation on Github API scenario)
@@ -74,21 +76,24 @@ function Build-CoverageSummaryReport
     Write-ActionInfo "Building human-readable code-coverage report"
     $script:coverage_report_name = $inputs.coverage_report_name
     $script:coverage_report_title = $inputs.coverage_report_title
-    $script:coverage_results_path = $inputs.coverage_results_path
+    $script:coverage_results_paths = $inputs.coverage_results_path -split ','
 
     if (-not $script:coverage_report_name) {
         $script:coverage_report_name = "COVERAGE_RESULTS_$([datetime]::Now.ToString('yyyyMMdd_hhmmss'))"
     }
     if (-not $coverage_report_title) {
-        $script:coverage_report_title = $script:coverage_report_name
+        $coverage_report_title = $script:coverage_report_name
     }
 
     $script:coverage_report_path = Join-Path $test_results_dir coverage-results.md
-    & "$PSScriptRoot/jacoco-report/jacocoxmlsummary2md.ps1" -Verbose `
-        -xmlFile $script:coverage_results_path `
-        -mdFile $script:coverage_report_path -xslParams @{
-            reportTitle = $script:coverage_report_title
-        }
+
+    foreach ($coverage_results_path in $script:coverage_results_paths) {
+        & "$PSScriptRoot/jacoco-report/jacocoxmlsummary2md.ps1" -Verbose `
+            -xmlFile $coverage_results_path `
+            -mdFile $script:coverage_report_path -xslParams @{
+                reportTitle = $coverage_report_title
+            }
+    }
 }
 
 #Feature 3. Added to support Github Job Summaries
@@ -97,33 +102,42 @@ function Build-SummaryReport
     Write-ActionInfo "Building human-readable code-coverage report"
     $script:coverage_report_name = $inputs.coverage_report_name
     $script:coverage_report_title = $inputs.coverage_report_title
-    $script:coverage_results_path = $inputs.coverage_results_path
+    $script:coverage_results_paths = $inputs.coverage_results_path -split ','
 
     if (-not $script:coverage_report_name) {
         $script:coverage_report_name = "COVERAGE_RESULTS_$([datetime]::Now.ToString('yyyyMMdd_hhmmss'))"
     }
     if (-not $coverage_report_title) {
-        $script:coverage_report_title = $script:coverage_report_name
+        $coverage_report_title = $script:coverage_report_name
     }
 
     $script:coverage_summary_path = Join-Path $test_results_dir coverage-summary.md
-    & "$PSScriptRoot/jacoco-report/buildsummary2md.ps1" -Verbose `
-        -xmlFile $script:coverage_results_path `
-        -mdFile $script:coverage_summary_path -xslParams @{
-            reportTitle = $script:coverage_report_title
-        }
+
+    foreach ($coverage_results_path in $script:coverage_results_paths) {
+        & "$PSScriptRoot/jacoco-report/buildsummary2md.ps1" -Verbose `
+            -xmlFile $coverage_results_path `
+            -mdFile $script:coverage_summary_path -xslParams @{
+                reportTitle = $coverage_report_title
+            }
+    }
 }
 
 
 function Parse-CoverageXML {
     # Parse XML
-    $coverageXmlData = Select-Xml -Path $script:coverage_results_path -XPath "/report/counter[@type='LINE']"
-    $script:coveredLines = [int]$coverageXmlData.Node.covered
-    Write-Host "Covered Lines: $coveredLines"
-    $script:missedLines = [int]$coverageXmlData.Node.missed
-    $script:totalLines = [int]($coveredLines+$missedLines)
-    Write-Host "Missed Lines: $missedLines"
-    Write-Host "Total Lines: $totalLines"
+    $script:coveredLines = 0
+    $script:missedLines = 0
+
+    foreach ($coverage_results_path in $script:coverage_results_paths) {
+        $coverageXmlData = Select-Xml -Path $coverage_results_path -XPath "/report/counter[@type='LINE']"
+        $script:coveredLines += [int]$coverageXmlData.Node.covered
+        $script:missedLines += [int]$coverageXmlData.Node.missed
+    }
+
+    $script:totalLines = [int]($script:coveredLines + $script:missedLines)
+    Write-Host "Covered Lines: $script:coveredLines"
+    Write-Host "Missed Lines: $script:missedLines"
+    Write-Host "Total Lines: $script:totalLines"
 }
 
 function Format-Percentage {
@@ -142,7 +156,7 @@ function Format-Percentage {
             Write-Output "Coverage: $coveragePercentage"
             $script:coveragePercentageString = "{0:p2}" -f ($coveragePercentage)
         }
-    elseif ($coveredLines -eq 0 -and $missedLines -eq 0)
+    elseif ($script:coveredLines -eq 0 -and $script:missedLines -eq 0)
         {
             $coveragePercentage = 0
             $script:coveragePercentage = 0
@@ -167,13 +181,13 @@ function Set-Output {
     Set-ActionVariable -Name coverage_percentage -Value ($script:coveragePercentage)
     Set-ActionVariable -Name covered_lines -Value ($script:coveredLines)
     Set-ActionVariable -Name missed_lines -Value ($script:missedLines)
-    Set-ActionVariable -Name total_lines -Value ($coveredLines+$missedLines)
+    Set-ActionVariable -Name total_lines -Value ($script:coveredLines+$script:missedLines)
     Set-ActionOutput -Name coveragePercentageString -Value ($script:coveragePercentageString)
     Set-ActionOutput -Name coveragePercentage -Value ($script:coveragePercentage)
     Set-ActionOutput -Name coverage_percentage -Value ($script:coveragePercentage)
     Set-ActionOutput -Name covered_lines -Value ($script:coveredLines)
     Set-ActionOutput -Name missed_lines -Value ($script:missedLines)
-    Set-ActionOutput -Name total_lines -Value ($script:coveredLines+$missedLines)
+    Set-ActionOutput -Name total_lines -Value ($script:coveredLines+$script:missedLines)
 
 }
 
@@ -433,4 +447,3 @@ else {
 
         # Set-ActionOutput -Name coverageSummary -Value $script:coverageSummary
     }
-    
