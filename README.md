@@ -144,7 +144,7 @@ https://github.com/PavanMudigonda/java-maven-playground/blob/master/.github/work
 
 This Action is implemented as a [PowerShell GitHub Action](https://github.com/ebekker/pwsh-github-action-base).
 
-### Please checkout my other github actions
+### Please checkout my other GitHub Actions
 
 * [Lines of Code Reporter](https://github.com/PavanMudigonda/lines-of-code-reporter/)
 * [GitHub Pages HTML Reporter](https://github.com/PavanMudigonda/html-reporter-github-pages)
