@@ -54,3 +54,20 @@ jobs:
           coverage_report_title: JaCoCo Job Summary
           github_token: ${{ secrets.GITHUB_TOKEN }}
           skip_check_run: true
+
+      # ── Multi-module (comma-separated paths) ─────────────────────────────
+      - name: JaCoCo Coverage Report — multi-module
+        id: jacoco_multi
+        uses: ./
+        with:
+          coverage_results_path: jacoco-report/example.jacoco.xml, jacoco-report/test.xml
+          coverage_report_name: Multi-Module Coverage
+          coverage_report_title: JaCoCo Multi-Module
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          skip_check_run: true
+
+      - name: Print multi-module coverage outputs
+        run: |
+          echo "coverage_percentage : ${{ steps.jacoco_multi.outputs.coverage_percentage }}"
+          echo "covered_lines       : ${{ steps.jacoco_multi.outputs.covered_lines }}"
+          echo "total_lines         : ${{ steps.jacoco_multi.outputs.total_lines }}"
