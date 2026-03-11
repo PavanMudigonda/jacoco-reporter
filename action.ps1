@@ -243,7 +243,6 @@ function Publish-ToCheckRun {
     }
     Write-ActionInfo "  API  : $apiBase"
 
-    $url = "$apiBase/repos/$repoFullName/check-runs"
     $hdr = @{
         Accept        = 'application/vnd.github+json'
         Authorization = "token $ghToken"
@@ -259,7 +258,28 @@ function Publish-ToCheckRun {
             text    = $reportData
         }
     }
-    Invoke-WebRequest -Headers $hdr $url -Method Post -Body ($bdy | ConvertTo-Json)
+
+    # Upsert: if a check run with this name already exists for this SHA (e.g. from
+    # a parallel push + pull_request trigger), update it instead of creating a duplicate.
+    $checkName  = [System.Uri]::EscapeDataString($reportName)
+    $listUrl    = "$apiBase/repos/$repoFullName/commits/$ref/check-runs?check_name=$checkName&per_page=1"
+    $existingId = $null
+    try {
+        $listResp   = Invoke-WebRequest -Headers $hdr $listUrl -Method Get
+        $existingId = ($listResp.Content | ConvertFrom-Json).check_runs[0].id
+    } catch {
+        # Not fatal — we'll fall through to create a new one.
+    }
+
+    if ($existingId) {
+        Write-ActionInfo "  Updating existing Check Run: $existingId"
+        $url = "$apiBase/repos/$repoFullName/check-runs/$existingId"
+        Invoke-WebRequest -Headers $hdr $url -Method Patch -Body ($bdy | ConvertTo-Json)
+    } else {
+        Write-ActionInfo "  Creating new Check Run"
+        $url = "$apiBase/repos/$repoFullName/check-runs"
+        Invoke-WebRequest -Headers $hdr $url -Method Post -Body ($bdy | ConvertTo-Json)
+    }
 }
 
 ## ── Quality Gate ──────────────────────────────────────────────────────────────
