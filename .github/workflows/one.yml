@@ -58,9 +58,6 @@ jobs:
         fail_below_threshold: false
         publish_only_summary: true
 
-    - name: Add Coverage Job Summary
-      run: echo "${{ steps.jacoco_reporter.outputs.coverageSummary }}" >> $GITHUB_STEP_SUMMARY
-
     - name: Upload Code Coverage Artifacts
       uses: actions/upload-artifact@v4
       with:
