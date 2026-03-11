@@ -294,11 +294,11 @@ function Publish-ToCheckRun {
     if ($existingId) {
         Write-ActionInfo "  Updating existing Check Run: $existingId"
         $url = "$apiBase/repos/$repoFullName/check-runs/$existingId"
-        Invoke-WebRequest -Headers $hdr $url -Method Patch -Body ($patchBody | ConvertTo-Json -Depth 5)
+        Invoke-WebRequest -Headers $hdr $url -Method Patch -ContentType 'application/json' -Body ($patchBody | ConvertTo-Json -Depth 5)
     } else {
         Write-ActionInfo "  Creating new Check Run"
         $url = "$apiBase/repos/$repoFullName/check-runs"
-        Invoke-WebRequest -Headers $hdr $url -Method Post -Body ($postBody | ConvertTo-Json -Depth 5)
+        Invoke-WebRequest -Headers $hdr $url -Method Post -ContentType 'application/json' -Body ($postBody | ConvertTo-Json -Depth 5)
     }
 }
 
