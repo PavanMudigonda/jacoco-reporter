@@ -164,9 +164,8 @@ function Format-Percentage {
 
 function Set-Outcome {
     # Default to success; only override when threshold enforcement is requested.
-    $script:status           = 'success'
-    $script:level            = 'notice'
-    $script:messageToDisplay = "Code Coverage $script:coveragePercentageString"
+    $script:status = 'success'
+    $script:level  = 'notice'
 
     $minCoverage = $inputs.minimum_coverage
     $failBelow   = Parse-Bool $inputs.fail_below_threshold
@@ -182,7 +181,6 @@ function Set-Outcome {
 }
 
 function Set-Outputs {
-    # Scalar outputs — safe to use Set-ActionOutput directly.
     $pairs = @{
         coveragePercentageString = $script:coveragePercentageString
         coveragePercentage       = $script:coveragePercentage
@@ -192,8 +190,14 @@ function Set-Outputs {
         total_lines              = $script:totalLines
     }
     foreach ($kv in $pairs.GetEnumerator()) {
+        # Set-ActionVariable makes the value available as an env var in subsequent steps.
         Set-ActionVariable -Name $kv.Key -Value $kv.Value
-        Set-ActionOutput   -Name $kv.Key -Value $kv.Value
+        # Write directly to GITHUB_OUTPUT — Set-ActionOutput in older GitHubActions
+        # module versions uses the deprecated ::set-output:: workflow command which
+        # GitHub has disabled, causing step outputs to be silently empty.
+        if ($env:GITHUB_OUTPUT) {
+            Add-Content -Path $env:GITHUB_OUTPUT -Value "$($kv.Key)=$($kv.Value)"
+        }
     }
 
     # coverageSummary is multiline markdown — must use heredoc delimiter syntax
@@ -290,11 +294,11 @@ function Publish-ToCheckRun {
     if ($existingId) {
         Write-ActionInfo "  Updating existing Check Run: $existingId"
         $url = "$apiBase/repos/$repoFullName/check-runs/$existingId"
-        Invoke-WebRequest -Headers $hdr $url -Method Patch -Body ($patchBody | ConvertTo-Json -Depth 5)
+        Invoke-WebRequest -Headers $hdr $url -Method Patch -ContentType 'application/json' -Body ($patchBody | ConvertTo-Json -Depth 5)
     } else {
         Write-ActionInfo "  Creating new Check Run"
         $url = "$apiBase/repos/$repoFullName/check-runs"
-        Invoke-WebRequest -Headers $hdr $url -Method Post -Body ($postBody | ConvertTo-Json -Depth 5)
+        Invoke-WebRequest -Headers $hdr $url -Method Post -ContentType 'application/json' -Body ($postBody | ConvertTo-Json -Depth 5)
     }
 }
 
