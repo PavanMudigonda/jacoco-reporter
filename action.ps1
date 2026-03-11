@@ -2,285 +2,156 @@
 
 $ErrorActionPreference = 'Stop'
 
-## Make sure any modules we depend on are installed
-$modulesToInstall = @(
-    'GitHubActions'
-)
+## ── Dependencies ──────────────────────────────────────────────────────────────
 
+$modulesToInstall = @('GitHubActions')
 $modulesToInstall | ForEach-Object {
     if (-not (Get-Module -ListAvailable -All $_)) {
         Write-Output "Module [$_] not found, INSTALLING..."
         Install-Module $_ -Force
     }
 }
-
-## Import dependencies
 Import-Module GitHubActions -Force
 
 Write-ActionInfo "Running from [$($PSScriptRoot)]"
 
-function splitListInput { $args[0] -split ',' | % { $_.Trim() } }
-function writeListInput { $args[0] | % { Write-ActionInfo "    - $_" } }
+## ── Helpers ───────────────────────────────────────────────────────────────────
+
+# GitHub Actions inputs are always strings; convert explicitly to avoid
+# silent coercion bugs (e.g. "false" -ne $true evaluates to $true).
+function Parse-Bool([string]$value) { $value -ieq 'true' }
+
+## ── Inputs ────────────────────────────────────────────────────────────────────
 
 $inputs = @{
     coverage_report_name  = Get-ActionInput coverage_report_name
     coverage_report_title = Get-ActionInput coverage_report_title
     coverage_results_path = Get-ActionInput coverage_results_path -Required
-    github_token          = Get-ActionInput github_token -Required
+    github_token          = Get-ActionInput github_token
     skip_check_run        = Get-ActionInput skip_check_run
     minimum_coverage      = Get-ActionInput minimum_coverage
     fail_below_threshold  = Get-ActionInput fail_below_threshold
     publish_only_summary  = Get-ActionInput publish_only_summary
 }
 
+## ── Workspace ─────────────────────────────────────────────────────────────────
+
 $test_results_dir = Join-Path $PWD _TMP
-Write-ActionInfo "Creating test results space"
-mkdir $test_results_dir
-Write-ActionInfo $test_results_dir
+Write-ActionInfo "Creating test results space at: $test_results_dir"
+New-Item -ItemType Directory -Force -Path $test_results_dir | Out-Null
+
 $script:coverage_report_path  = Join-Path $test_results_dir coverage-results.md
 $script:coverage_summary_path = Join-Path $test_results_dir coverage-summary.md
-$script:publish_only_summary  = $inputs.publish_only_summary
-$script:skip_check_run        = $inputs.skip_check_run
 
-# Feature 1
-function Build-CoverageReport
-{
-    Write-ActionInfo "Building human-readable code-coverage report"
-    $script:coverage_report_name = $inputs.coverage_report_name
-    $script:coverage_report_title = $inputs.coverage_report_title
-    $script:coverage_results_path = $inputs.coverage_results_path
+## ── Report Metadata ───────────────────────────────────────────────────────────
 
-    if (-not $script:coverage_report_name) {
-        $script:coverage_report_name = "COVERAGE_RESULTS_$([datetime]::Now.ToString('yyyyMMdd_hhmmss'))"
-    }
-    if (-not $coverage_report_title) {
-        $script:coverage_report_title = $script:coverage_report_name
-    }
+# Resolve once; all Build-* functions share these values.
+$script:coverage_report_name  = $inputs.coverage_report_name
+$script:coverage_report_title = $inputs.coverage_report_title
+$script:coverage_results_path = $inputs.coverage_results_path
 
-        $script:coverage_report_path = Join-Path $test_results_dir coverage-results.md
-        & "$PSScriptRoot/jacoco-report/jacocoxml2md.ps1" -Verbose `
-            -xmlFile $script:coverage_results_path `
-            -mdFile $script:coverage_report_path -xslParams @{
-                reportTitle = $script:coverage_report_title
-            }
-
-        & "$PSScriptRoot/jacoco-report/embedmissedlines.ps1" -mdFile $script:coverage_report_path
-
+if (-not $script:coverage_report_name) {
+    $script:coverage_report_name = "COVERAGE_RESULTS_$([datetime]::Now.ToString('yyyyMMdd_hhmmss'))"
+}
+if (-not $script:coverage_report_title) {
+    $script:coverage_report_title = $script:coverage_report_name
 }
 
-#Feature# 2 (added to handle 65k chars limitation on Github API scenario)
-function Build-CoverageSummaryReport
-{
-    Write-ActionInfo "Building human-readable code-coverage report"
-    $script:coverage_report_name = $inputs.coverage_report_name
-    $script:coverage_report_title = $inputs.coverage_report_title
-    $script:coverage_results_path = $inputs.coverage_results_path
+## ── Report Builders ───────────────────────────────────────────────────────────
 
-    if (-not $script:coverage_report_name) {
-        $script:coverage_report_name = "COVERAGE_RESULTS_$([datetime]::Now.ToString('yyyyMMdd_hhmmss'))"
-    }
-    if (-not $coverage_report_title) {
-        $script:coverage_report_title = $script:coverage_report_name
-    }
-
-    $script:coverage_report_path = Join-Path $test_results_dir coverage-results.md
-    & "$PSScriptRoot/jacoco-report/jacocoxmlsummary2md.ps1" -Verbose `
-        -xmlFile $script:coverage_results_path `
-        -mdFile $script:coverage_report_path -xslParams @{
-            reportTitle = $script:coverage_report_title
-        }
+function Build-CoverageReport {
+    Write-ActionInfo "Building full code-coverage report"
+    & "$PSScriptRoot/jacoco-report/Invoke-XslTransform.ps1" `
+        -xmlFile   $script:coverage_results_path `
+        -xslFile   "$PSScriptRoot/jacoco-report/jacocoxml2md.xsl" `
+        -mdFile    $script:coverage_report_path `
+        -xslParams @{ reportTitle = $script:coverage_report_title }
+    & "$PSScriptRoot/jacoco-report/embedmissedlines.ps1" -mdFile $script:coverage_report_path
 }
 
-#Feature 3. Added to support Github Job Summaries
-function Build-SummaryReport
-{
-    Write-ActionInfo "Building human-readable code-coverage report"
-    $script:coverage_report_name = $inputs.coverage_report_name
-    $script:coverage_report_title = $inputs.coverage_report_title
-    $script:coverage_results_path = $inputs.coverage_results_path
-
-    if (-not $script:coverage_report_name) {
-        $script:coverage_report_name = "COVERAGE_RESULTS_$([datetime]::Now.ToString('yyyyMMdd_hhmmss'))"
-    }
-    if (-not $coverage_report_title) {
-        $script:coverage_report_title = $script:coverage_report_name
-    }
-
-    $script:coverage_summary_path = Join-Path $test_results_dir coverage-summary.md
-    & "$PSScriptRoot/jacoco-report/buildsummary2md.ps1" -Verbose `
-        -xmlFile $script:coverage_results_path `
-        -mdFile $script:coverage_summary_path -xslParams @{
-            reportTitle = $script:coverage_report_title
-        }
+function Build-CoverageSummaryReport {
+    Write-ActionInfo "Building summary code-coverage report"
+    & "$PSScriptRoot/jacoco-report/Invoke-XslTransform.ps1" `
+        -xmlFile   $script:coverage_results_path `
+        -xslFile   "$PSScriptRoot/jacoco-report/jacocoxmlsummary2md.xsl" `
+        -mdFile    $script:coverage_report_path `
+        -xslParams @{ reportTitle = $script:coverage_report_title }
 }
 
+function Build-SummaryReport {
+    Write-ActionInfo "Building GitHub Job Summary report"
+    & "$PSScriptRoot/jacoco-report/Invoke-XslTransform.ps1" `
+        -xmlFile   $script:coverage_results_path `
+        -xslFile   "$PSScriptRoot/jacoco-report/buildsummary2md.xsl" `
+        -mdFile    $script:coverage_summary_path `
+        -xslParams @{ reportTitle = $script:coverage_report_title }
+}
+
+## ── Coverage Analysis ─────────────────────────────────────────────────────────
 
 function Parse-CoverageXML {
-    # Parse XML
-    $coverageXmlData = Select-Xml -Path $script:coverage_results_path -XPath "/report/counter[@type='LINE']"
-    $script:coveredLines = [int]$coverageXmlData.Node.covered
-    Write-Host "Covered Lines: $coveredLines"
-    $script:missedLines = [int]$coverageXmlData.Node.missed
-    $script:totalLines = [int]($coveredLines+$missedLines)
-    Write-Host "Missed Lines: $missedLines"
-    Write-Host "Total Lines: $totalLines"
+    $node = (Select-Xml -Path $script:coverage_results_path -XPath "/report/counter[@type='LINE']").Node
+    $script:coveredLines = [int]$node.covered
+    $script:missedLines  = [int]$node.missed
+    $script:totalLines   = $script:coveredLines + $script:missedLines
+    Write-ActionInfo "  Covered : $script:coveredLines"
+    Write-ActionInfo "  Missed  : $script:missedLines"
+    Write-ActionInfo "  Total   : $script:totalLines"
 }
 
 function Format-Percentage {
-    # Format Percentage
-    if ($script:missedLines -eq 0)
-        {
-            $coveragePercentage = 100
-            $script:coveragePercentage = 100
-            Write-Output "Coverage: $coveragePercentage"
-            $script:coveragePercentageString = "{0:p2}" -f ($coveragePercentage/100)
-        }
-    elseif ($script:coveredLines -eq 0)
-        {
-            $coveragePercentage = 0
-            $script:coveragePercentage = 0
-            Write-Output "Coverage: $coveragePercentage"
-            $script:coveragePercentageString = "{0:p2}" -f ($coveragePercentage)
-        }
-    elseif ($coveredLines -eq 0 -and $missedLines -eq 0)
-        {
-            $coveragePercentage = 0
-            $script:coveragePercentage = 0
-            Write-Output "Coverage: $coveragePercentage"
-            $script:coveragePercentageString = "{0:p2}" -f ($coveragePercentage)
-        }
-    else
-        {
-            $coveragePercentage = [math]::Round( (($script:coveredLines/($script:coveredLines+$script:missedLines) ) * 100 ), 2)
-            $script:coveragePercentage = [math]::Round( (($script:coveredLines/($script:coveredLines+$script:missedLines) ) * 100 ), 2)
-            Write-Output "Coverage: $coveragePercentage"
-            $script:coveragePercentageString = "{0:p2}" -f ($coveragePercentage/100)
-        }
+    $script:coveragePercentage = if ($script:coveredLines -eq 0 -and $script:missedLines -eq 0) {
+        0
+    } elseif ($script:missedLines -eq 0) {
+        100
+    } elseif ($script:coveredLines -eq 0) {
+        0
+    } else {
+        [math]::Round(($script:coveredLines / $script:totalLines) * 100, 2)
+    }
+    $script:coveragePercentageString = "{0:p2}" -f ($script:coveragePercentage / 100)
+    Write-ActionInfo "Coverage: $script:coveragePercentageString"
 }
 
-
-function Set-Output {
-    # Set Output
-
-    Set-ActionVariable -Name coveragePercentageString -Value ($script:coveragePercentageString)
-    Set-ActionVariable -Name coveragePercentage -Value ($script:coveragePercentage)
-    Set-ActionVariable -Name coverage_percentage -Value ($script:coveragePercentage)
-    Set-ActionVariable -Name covered_lines -Value ($script:coveredLines)
-    Set-ActionVariable -Name missed_lines -Value ($script:missedLines)
-    Set-ActionVariable -Name total_lines -Value ($coveredLines+$missedLines)
-    Set-ActionOutput -Name coveragePercentageString -Value ($script:coveragePercentageString)
-    Set-ActionOutput -Name coveragePercentage -Value ($script:coveragePercentage)
-    Set-ActionOutput -Name coverage_percentage -Value ($script:coveragePercentage)
-    Set-ActionOutput -Name covered_lines -Value ($script:coveredLines)
-    Set-ActionOutput -Name missed_lines -Value ($script:missedLines)
-    Set-ActionOutput -Name total_lines -Value ($script:coveredLines+$missedLines)
-
-}
+## ── Outcome & Outputs ─────────────────────────────────────────────────────────
 
 function Set-Outcome {
-    if ($inputs.fail_below_threshold -eq "true") {
-            Write-ActionInfo "  * fail_below_threshold: true"
-        }
+    # Default to success; only override when threshold enforcement is requested.
+    $script:status           = 'success'
+    $script:level            = 'notice'
+    $script:messageToDisplay = "Code Coverage $script:coveragePercentageString"
 
-    if (($script:coveragePercentage -lt $inputs.minimum_coverage) -and ($inputs.fail_below_threshold -eq "true")) {
-            $script:status = "failure"
-            $script:level = "warning"
-            $script:messageToDisplay = "Code Coverage $script:coveragePercentageString"
-        }
+    $minCoverage = $inputs.minimum_coverage
+    $failBelow   = Parse-Bool $inputs.fail_below_threshold
 
-    if (($script:coveragePercentage -ge $inputs.minimum_coverage) -and ($inputs.fail_below_threshold -eq "true")) {
-            $script:status = "success"
-            $script:level = "notice"
-            $script:messageToDisplay = "Code Coverage $script:coveragePercentageString"
+    if ($minCoverage -ne '' -and $inputs.fail_below_threshold -ne '') {
+        Write-ActionInfo "  fail_below_threshold : $failBelow"
+        Write-ActionInfo "  minimum_coverage     : $minCoverage%"
+        if ($failBelow -and ($script:coveragePercentage -lt [int]$minCoverage)) {
+            $script:status = 'failure'
+            $script:level  = 'warning'
         }
-
-    if (($script:coveragePercentage -ge $inputs.minimum_coverage) -and ($inputs.fail_below_threshold -eq "false")) {
-            $script:status = "success"
-            $script:level = "notice"
-            $script:messageToDisplay = "Code Coverage $script:coveragePercentageString"
-        }
-
-    if (($script:coveragePercentage -ge $inputs.minimum_coverage) -and ($inputs.fail_below_threshold -eq "")) {
-            $script:status = "success"
-            $script:level = "notice"
-            $script:messageToDisplay = "Code Coverage $script:coveragePercentageString"
-        }
-
-    if (($script:coveragePercentage -lt $inputs.minimum_coverage) -and ($inputs.fail_below_threshold -eq "false")) {
-            $script:status = "success"
-            $script:level = "notice"
-            $script:messageToDisplay = "Code Coverage $script:coveragePercentageString"
-        }
-        
-    if (($script:coveragePercentage -lt $inputs.minimum_coverage) -and ($inputs.fail_below_threshold -eq "")) {
-            $script:status = "success"
-            $script:level = "notice"
-            $script:messageToDisplay = "Code Coverage $script:coveragePercentageString"
-        }
-    if(($inputs.minimum_coverage -eq "") -or ($inputs.fail_below_threshold -eq "")){
-        $script:status = "success"
-        $script:level = 'notice'
-        $script:messageToDisplay = "Code Coverage $script:coveragePercentageString"
     }
 }
 
-# Enforce Quality Gate
-
-function Enforce-QualityGate {
-    if ($inputs.fail_below_threshold -eq "true") {
-            Write-ActionInfo "  * fail_below_threshold: true"
-        }
-
-    if ($coveragePercentage -lt $inputs.minimum_coverage -and $inputs.fail_below_threshold -eq "true") {
-            $script:stepShouldFail = $true
-        }
-
-    if ($stepShouldFail) {
-        Write-ActionInfo "Thowing error as Code Coverage is less than "minimum_coverage" is not met and 'fail_below_threshold' was true."
-        throw "Code Coverage is less than Minimum Code Coverage Required"
+function Set-Outputs {
+    # Set both action variables and action outputs for maximum compatibility.
+    $pairs = @{
+        coveragePercentageString = $script:coveragePercentageString
+        coveragePercentage       = $script:coveragePercentage
+        coverage_percentage      = $script:coveragePercentage
+        covered_lines            = $script:coveredLines
+        missed_lines             = $script:missedLines
+        total_lines              = $script:totalLines
+    }
+    foreach ($kv in $pairs.GetEnumerator()) {
+        Set-ActionVariable -Name $kv.Key -Value $kv.Value
+        Set-ActionOutput   -Name $kv.Key -Value $kv.Value
     }
 }
 
-# #Issue 26: FEATURE REQUEST: Display Coverage Percent along with Check
+## ── GitHub Check Run ──────────────────────────────────────────────────────────
 
-# function Update-PRCheck {
-#     param(
-#         [string]$reportData,
-#         [string]$reportName,
-#         [string]$reportTitle
-#     )
-    
-#     Set-Outcome
-    
-#     $ghToken = $inputs.github_token
-#     $ctx = Get-ActionContext
-#     $repo = Get-ActionRepo
-#     $repoFullName = "$($repo.Owner)/$($repo.Repo)"    
-#     Write-ActionInfo "Resolved REF as $ref"
-#     Write-ActionInfo "Resolve Repo Full Name as $repoFullName"
-#     Write-ActionInfo "Update Annotation Check to: $checkId"
-#     $checkId = $script:checkId
-#     Write-ActionInfo "checkId: $checkId"
-#     $url = "https://api.github.com/repos/$repoFullName/check-runs/$checkId"
-#     $hdr = @{
-#         Accept = 'application/vnd.github+json'
-#         Authorization = "token $ghToken"
-#     }
-#     $bdy = @{
-#         name       = $reportName
-#         status     = 'completed'
-#         conclusion = $script:outcome
-#         output     = @{
-#             title   = $reportTitle
-#             summary = "This run completed at ``$([datetime]::Now)``"
-#             text    = $ReportData
-#         }
-#     }
-#     Invoke-WebRequest -Headers $hdr $url -Method Patch -Body ($bdy | ConvertTo-Json)
-# }
-
-# Publishing Report to GH Workflow
-# Function to Publish Check Run with Neutral Status # Round 1
 function Publish-ToCheckRun {
     param(
         [string]$reportData,
@@ -290,34 +161,28 @@ function Publish-ToCheckRun {
         [string]$coveragePercentage
     )
 
-    Write-ActionInfo "Publishing Report to GH Workflow"
-
-    $ghToken = $inputs.github_token
-    $ctx = Get-ActionContext
-    $repo = Get-ActionRepo
+    Write-ActionInfo "Publishing Check Run to GitHub"
+    $ghToken      = $inputs.github_token
+    $ctx          = Get-ActionContext
+    $repo         = Get-ActionRepo
     $repoFullName = "$($repo.Owner)/$($repo.Repo)"
 
-    Write-ActionInfo "Resolving REF"
+    # Resolve the correct commit SHA for push and pull_request events.
     $ref = $ctx.Sha
     if ($ctx.EventName -eq 'pull_request') {
-        Write-ActionInfo "Resolving PR REF"
         $ref = $ctx.Payload.pull_request.head.sha
-        if (-not $ref) {
-            Write-ActionInfo "Resolving PR REF as AFTER"
-            $ref = $ctx.Payload.after
-        }
+        if (-not $ref) { $ref = $ctx.Payload.after }
     }
     if (-not $ref) {
-        Write-ActionError "Failed to resolve REF"
+        Write-ActionError "Failed to resolve commit SHA"
         exit 1
     }
-    Write-ActionInfo "Resolved REF as $ref"
-    Write-ActionInfo "Resolve Repo Full Name as $repoFullName"
+    Write-ActionInfo "  Repo : $repoFullName"
+    Write-ActionInfo "  SHA  : $ref"
 
-    Write-ActionInfo "Adding Check Run"
     $url = "https://api.github.com/repos/$repoFullName/check-runs"
     $hdr = @{
-        Accept = 'application/vnd.github+json'
+        Accept        = 'application/vnd.github+json'
         Authorization = "token $ghToken"
     }
     $bdy = @{
@@ -327,110 +192,60 @@ function Publish-ToCheckRun {
         conclusion = $outcome
         output     = @{
             title   = "Code Coverage $coveragePercentage"
-            summary = "This run completed at ``$([datetime]::Now)``"
-            text    = $ReportData
+            summary = "Run completed at ``$([datetime]::Now)``"
+            text    = $reportData
         }
     }
-    Write-ActionInfo "$hdr"
-    Write-ActionInfo $url
-    Write-ActionInfo "$bdy"
-
     Invoke-WebRequest -Headers $hdr $url -Method Post -Body ($bdy | ConvertTo-Json)
-    # Grab Check ID
-    # $checkId = ( ConvertFrom-Json $response.Content ).id
-    # $checkUrl = ( ConvertFrom-Json $response.Content ).url
-    # Write-ActionInfo "Check ID: $checkId"
-    # Write-ActionInfo "Check ID: $checkUrl"
-    # $script:checkUrl = $checkUrl
-    # $script:checkId = $checkId
 }
 
+## ── Quality Gate ──────────────────────────────────────────────────────────────
 
-Write-ActionInfo "Publishing Report to GH Workflow"
-$coverage_results_path = $inputs.coverage_results_path
-if ($inputs.skip_check_run -ne $true -and $inputs.publish_only_summary -eq $true )
-    {
-
-        Build-CoverageSummaryReport
-        
-        Parse-CoverageXML
-                
-        Format-Percentage
-        
-        Set-Outcome
-        
-        Set-Output
-
-        $coverageSummaryData = [System.IO.File]::ReadAllText($script:coverage_report_path)
-
-        Publish-ToCheckRun -ReportData $coverageSummaryData -ReportName $script:coverage_report_name -ReportTitle $script:coverage_report_title -outcome $Script:status -coveragePercentage $script:coveragePercentageString
-
-#       Update-PRCheck -ReportData $script:coverageSummaryData -ReportName $coverage_report_name -ReportTitle $script:messageToDisplay
-
-        Enforce-QualityGate
-        
-        # Set-ActionOutput -Name coverageSummary -Value $script:coverageSummaryData
+function Enforce-QualityGate {
+    if ($script:status -eq 'failure') {
+        $msg = "Code Coverage $script:coveragePercentageString is below the required minimum of $($inputs.minimum_coverage)%."
+        Write-ActionInfo "Quality gate FAILED: $msg"
+        throw $msg
     }
-elseif ($inputs.skip_check_run -ne $true -and $inputs.publish_only_summary -ne $true )
-    {
+    Write-ActionInfo "Quality gate PASSED: $script:coveragePercentageString"
+}
 
-        Build-CoverageReport
+## ── Main ──────────────────────────────────────────────────────────────────────
 
-        Parse-CoverageXML
+Write-ActionInfo "Starting JaCoCo Reporter"
 
-        Format-Percentage
+$skipCheckRun       = Parse-Bool $inputs.skip_check_run
+$publishOnlySummary = Parse-Bool $inputs.publish_only_summary
 
-        Set-Outcome
+Write-ActionInfo "  skip_check_run       : $skipCheckRun"
+Write-ActionInfo "  publish_only_summary : $publishOnlySummary"
 
-        Set-Output
+# Step 1 ── Build the appropriate report(s)
+if ($publishOnlySummary) {
+    Build-CoverageSummaryReport
+} else {
+    Build-CoverageReport
+}
+if ($skipCheckRun) {
+    Build-SummaryReport
+}
 
-        $coverageSummaryData = [System.IO.File]::ReadAllText($script:coverage_report_path)
+# Step 2 ── Parse coverage data and compute metrics
+Parse-CoverageXML
+Format-Percentage
+Set-Outcome
+Set-Outputs
 
-        Publish-ToCheckRun -ReportData $coverageSummaryData -ReportName $script:coverage_report_name -ReportTitle $script:coverage_report_title -outcome $script:status -coveragePercentage $script:coveragePercentageString
+# Step 3 ── Publish to GitHub Check Run (unless skipped)
+if (-not $skipCheckRun) {
+    $reportData = [System.IO.File]::ReadAllText($script:coverage_report_path)
+    Publish-ToCheckRun `
+        -ReportData         $reportData `
+        -ReportName         $script:coverage_report_name `
+        -ReportTitle        $script:coverage_report_title `
+        -outcome            $script:status `
+        -coveragePercentage $script:coveragePercentageString
+}
 
-#       Update-PRCheck -ReportData $script:coverageSummaryData -ReportName $coverage_report_name -ReportTitle $script:messageToDisplay
-
-        Enforce-QualityGate
-        # Set-ActionOutput -Name coverageSummary -Value $script:coverageSummaryData
-
-    }
-elseif ($inputs.skip_check_run -eq $true -and $inputs.publish_only_summary -eq $true )
-    {
-        
-        Build-CoverageSummaryReport
-
-        Build-SummaryReport
-        
-        Parse-CoverageXML
-                
-        Format-Percentage
-
-        Set-Outcome
-        
-        Set-Output
-        
-        # $coverageSummary = [System.IO.File]::ReadAllText($script:coverage_summary_path)
-
-        Enforce-QualityGate
-        # Set-ActionOutput -Name coverageSummary -Value $script:coverageSummary
-    }
-else {
-        Build-CoverageReport
-
-        Build-SummaryReport
-        
-        Parse-CoverageXML
-                
-        Format-Percentage
-        
-        Set-Outcome
-        
-        Set-Output
-        
-        # $coverageSummary = [System.IO.File]::ReadAllText($script:coverage_summary_path)
-        
-        Enforce-QualityGate
-
-        # Set-ActionOutput -Name coverageSummary -Value $script:coverageSummary
-    }
-    
+# Step 4 ── Enforce quality gate (throws on failure when configured)
+Enforce-QualityGate
