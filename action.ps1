@@ -21,6 +21,17 @@ Write-ActionInfo "Running from [$($PSScriptRoot)]"
 # silent coercion bugs (e.g. "false" -ne $true evaluates to $true).
 function Parse-Bool([string]$value) { $value -ieq 'true' }
 
+# Write a multiline value to GITHUB_OUTPUT using the heredoc delimiter syntax
+# required for values that contain newlines (Set-ActionOutput does not support this).
+function Set-MultilineOutput([string]$name, [string]$value) {
+    if ($env:GITHUB_OUTPUT) {
+        $delim = [System.Guid]::NewGuid().ToString('N')
+        Add-Content -Path $env:GITHUB_OUTPUT -Value "$name<<$delim"
+        Add-Content -Path $env:GITHUB_OUTPUT -Value $value
+        Add-Content -Path $env:GITHUB_OUTPUT -Value $delim
+    }
+}
+
 ## ── Inputs ────────────────────────────────────────────────────────────────────
 
 $inputs = @{
@@ -28,6 +39,7 @@ $inputs = @{
     coverage_report_title = Get-ActionInput coverage_report_title
     coverage_results_path = Get-ActionInput coverage_results_path -Required
     github_token          = Get-ActionInput github_token
+    ghes_api_endpoint     = Get-ActionInput ghes_api_endpoint
     skip_check_run        = Get-ActionInput skip_check_run
     minimum_coverage      = Get-ActionInput minimum_coverage
     fail_below_threshold  = Get-ActionInput fail_below_threshold
@@ -45,10 +57,15 @@ $script:coverage_summary_path = Join-Path $test_results_dir coverage-summary.md
 
 ## ── Report Metadata ───────────────────────────────────────────────────────────
 
-# Resolve once; all Build-* functions share these values.
+# Support comma-separated paths for multi-module projects (#47).
+$script:coverage_results_paths = @(
+    $inputs.coverage_results_path -split ',' | ForEach-Object { $_.Trim() } | Where-Object { $_ -ne '' }
+)
+Write-ActionInfo "Coverage file(s): $($script:coverage_results_paths -join ', ')"
+
+# Resolve report name and title once; all Build-* functions share these values.
 $script:coverage_report_name  = $inputs.coverage_report_name
 $script:coverage_report_title = $inputs.coverage_report_title
-$script:coverage_results_path = $inputs.coverage_results_path
 
 if (-not $script:coverage_report_name) {
     $script:coverage_report_name = "COVERAGE_RESULTS_$([datetime]::Now.ToString('yyyyMMdd_hhmmss'))"
@@ -60,43 +77,73 @@ if (-not $script:coverage_report_title) {
 ## ── Report Builders ───────────────────────────────────────────────────────────
 
 function Build-CoverageReport {
-    Write-ActionInfo "Building full code-coverage report"
-    & "$PSScriptRoot/jacoco-report/Invoke-XslTransform.ps1" `
-        -xmlFile   $script:coverage_results_path `
-        -xslFile   "$PSScriptRoot/jacoco-report/jacocoxml2md.xsl" `
-        -mdFile    $script:coverage_report_path `
-        -xslParams @{ reportTitle = $script:coverage_report_title }
-    & "$PSScriptRoot/jacoco-report/embedmissedlines.ps1" -mdFile $script:coverage_report_path
+    Write-ActionInfo "Building full code-coverage report ($($script:coverage_results_paths.Count) module(s))"
+    $combined = [System.Text.StringBuilder]::new()
+    $i = 0
+    foreach ($xmlPath in $script:coverage_results_paths) {
+        $i++
+        $tempMd = Join-Path $test_results_dir "module-full-$i.md"
+        & "$PSScriptRoot/jacoco-report/Invoke-XslTransform.ps1" `
+            -xmlFile   $xmlPath `
+            -xslFile   "$PSScriptRoot/jacoco-report/jacocoxml2md.xsl" `
+            -mdFile    $tempMd `
+            -xslParams @{ reportTitle = $script:coverage_report_title }
+        & "$PSScriptRoot/jacoco-report/embedmissedlines.ps1" -mdFile $tempMd
+        $combined.AppendLine([System.IO.File]::ReadAllText($tempMd)) | Out-Null
+    }
+    [System.IO.File]::WriteAllText($script:coverage_report_path, $combined.ToString())
 }
 
 function Build-CoverageSummaryReport {
-    Write-ActionInfo "Building summary code-coverage report"
-    & "$PSScriptRoot/jacoco-report/Invoke-XslTransform.ps1" `
-        -xmlFile   $script:coverage_results_path `
-        -xslFile   "$PSScriptRoot/jacoco-report/jacocoxmlsummary2md.xsl" `
-        -mdFile    $script:coverage_report_path `
-        -xslParams @{ reportTitle = $script:coverage_report_title }
+    Write-ActionInfo "Building summary code-coverage report ($($script:coverage_results_paths.Count) module(s))"
+    $combined = [System.Text.StringBuilder]::new()
+    $i = 0
+    foreach ($xmlPath in $script:coverage_results_paths) {
+        $i++
+        $tempMd = Join-Path $test_results_dir "module-summary-$i.md"
+        & "$PSScriptRoot/jacoco-report/Invoke-XslTransform.ps1" `
+            -xmlFile   $xmlPath `
+            -xslFile   "$PSScriptRoot/jacoco-report/jacocoxmlsummary2md.xsl" `
+            -mdFile    $tempMd `
+            -xslParams @{ reportTitle = $script:coverage_report_title }
+        $combined.AppendLine([System.IO.File]::ReadAllText($tempMd)) | Out-Null
+    }
+    [System.IO.File]::WriteAllText($script:coverage_report_path, $combined.ToString())
 }
 
 function Build-SummaryReport {
-    Write-ActionInfo "Building GitHub Job Summary report"
-    & "$PSScriptRoot/jacoco-report/Invoke-XslTransform.ps1" `
-        -xmlFile   $script:coverage_results_path `
-        -xslFile   "$PSScriptRoot/jacoco-report/buildsummary2md.xsl" `
-        -mdFile    $script:coverage_summary_path `
-        -xslParams @{ reportTitle = $script:coverage_report_title }
+    Write-ActionInfo "Building GitHub Job Summary report ($($script:coverage_results_paths.Count) module(s))"
+    $combined = [System.Text.StringBuilder]::new()
+    $i = 0
+    foreach ($xmlPath in $script:coverage_results_paths) {
+        $i++
+        $tempMd = Join-Path $test_results_dir "module-jobsummary-$i.md"
+        & "$PSScriptRoot/jacoco-report/Invoke-XslTransform.ps1" `
+            -xmlFile   $xmlPath `
+            -xslFile   "$PSScriptRoot/jacoco-report/buildsummary2md.xsl" `
+            -mdFile    $tempMd `
+            -xslParams @{ reportTitle = $script:coverage_report_title }
+        $combined.AppendLine([System.IO.File]::ReadAllText($tempMd)) | Out-Null
+    }
+    [System.IO.File]::WriteAllText($script:coverage_summary_path, $combined.ToString())
 }
 
 ## ── Coverage Analysis ─────────────────────────────────────────────────────────
 
 function Parse-CoverageXML {
-    $node = (Select-Xml -Path $script:coverage_results_path -XPath "/report/counter[@type='LINE']").Node
-    $script:coveredLines = [int]$node.covered
-    $script:missedLines  = [int]$node.missed
-    $script:totalLines   = $script:coveredLines + $script:missedLines
+    # Sum LINE counters across all modules (#47 multi-module support).
+    $script:coveredLines = 0
+    $script:missedLines  = 0
+    foreach ($xmlPath in $script:coverage_results_paths) {
+        $node = (Select-Xml -Path $xmlPath -XPath "/report/counter[@type='LINE']").Node
+        $script:coveredLines += [int]$node.covered
+        $script:missedLines  += [int]$node.missed
+    }
+    $script:totalLines = $script:coveredLines + $script:missedLines
     Write-ActionInfo "  Covered : $script:coveredLines"
     Write-ActionInfo "  Missed  : $script:missedLines"
     Write-ActionInfo "  Total   : $script:totalLines"
+    Write-ActionInfo "  Note    : percentages are based on LINE coverage, not INSTRUCTION or BRANCH coverage"
 }
 
 function Format-Percentage {
@@ -135,7 +182,7 @@ function Set-Outcome {
 }
 
 function Set-Outputs {
-    # Set both action variables and action outputs for maximum compatibility.
+    # Scalar outputs — safe to use Set-ActionOutput directly.
     $pairs = @{
         coveragePercentageString = $script:coveragePercentageString
         coveragePercentage       = $script:coveragePercentage
@@ -148,9 +195,17 @@ function Set-Outputs {
         Set-ActionVariable -Name $kv.Key -Value $kv.Value
         Set-ActionOutput   -Name $kv.Key -Value $kv.Value
     }
+
+    # coverageSummary is multiline markdown — must use heredoc delimiter syntax
+    # in GITHUB_OUTPUT to avoid "Invalid format" errors (#56).
+    $summaryContent = [System.IO.File]::ReadAllText($script:coverage_report_path)
+    Set-MultilineOutput -name 'coverageSummary' -value $summaryContent
 }
 
 ## ── GitHub Check Run ──────────────────────────────────────────────────────────
+
+# GitHub Check Run API has a ~65k character limit on the `text` field (#22).
+$script:CHECKRUN_CHAR_LIMIT = 60000
 
 function Publish-ToCheckRun {
     param(
@@ -180,7 +235,15 @@ function Publish-ToCheckRun {
     Write-ActionInfo "  Repo : $repoFullName"
     Write-ActionInfo "  SHA  : $ref"
 
-    $url = "https://api.github.com/repos/$repoFullName/check-runs"
+    # GHES support (#70): use provided endpoint, fall back to github.com.
+    $apiBase = if ($inputs.ghes_api_endpoint -ne '') {
+        $inputs.ghes_api_endpoint.TrimEnd('/')
+    } else {
+        'https://api.github.com'
+    }
+    Write-ActionInfo "  API  : $apiBase"
+
+    $url = "$apiBase/repos/$repoFullName/check-runs"
     $hdr = @{
         Accept        = 'application/vnd.github+json'
         Authorization = "token $ghToken"
@@ -239,6 +302,15 @@ Set-Outputs
 # Step 3 ── Publish to GitHub Check Run (unless skipped)
 if (-not $skipCheckRun) {
     $reportData = [System.IO.File]::ReadAllText($script:coverage_report_path)
+
+    # Auto-fallback (#22): if the full report exceeds GitHub's ~65k char API limit,
+    # automatically rebuild and use the summary report instead of failing silently.
+    if ($reportData.Length -gt $script:CHECKRUN_CHAR_LIMIT -and -not $publishOnlySummary) {
+        Write-ActionWarning "Report is $($reportData.Length) chars, exceeding the $($script:CHECKRUN_CHAR_LIMIT)-char GitHub Check Run limit. Switching to summary report automatically."
+        Build-CoverageSummaryReport
+        $reportData = [System.IO.File]::ReadAllText($script:coverage_report_path)
+    }
+
     Publish-ToCheckRun `
         -ReportData         $reportData `
         -ReportName         $script:coverage_report_name `

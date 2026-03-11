@@ -9,8 +9,12 @@ inputs:
 
   coverage_results_path:
     description: |
-      Path to the JaCoCo coverage results XML file.
-      The only supported format is the JaCoCo XML schema.
+      Path (or comma-separated list of paths) to one or more JaCoCo coverage
+      XML files. Multiple paths enable multi-module project support — line
+      counters are summed across all files and a combined report is produced.
+      Example: "module-a/jacoco.xml, module-b/jacoco.xml"
+      Note: coverage percentage is calculated from LINE coverage counters.
+      This will differ from JaCoCo HTML reports, which show INSTRUCTION coverage.
     required: true
 
   github_token:
@@ -19,6 +23,14 @@ inputs:
       attaching the coverage report to the Workflow Run.
     required: false
     default: ${{ github.token }}
+
+  ghes_api_endpoint:
+    description: |
+      GitHub Enterprise Server (GHES) API endpoint URL.
+      When set, all API calls are directed to this endpoint instead of
+      the default https://api.github.com.
+      Example: https://github.example.com/api/v3
+    required: false
 
   coverage_report_name:
     description: |
@@ -56,13 +68,15 @@ inputs:
       When `true`, publishes only the summary table instead of the full
       file-level report. Useful when the full report exceeds GitHub's
       65 k-character API limit.
+      Note: the action will automatically switch to summary mode if the full
+      report exceeds the limit, even when this is `false`.
     required: false
     default: 'false'
 
 outputs:
 
   coverage_percentage:
-    description: Coverage percentage as a number (e.g. `85.23`)
+    description: Coverage percentage as a number (e.g. `85.23`). Based on LINE coverage.
 
   coveragePercentage:
     description: Coverage percentage as a number — alias for `coverage_percentage`
@@ -78,6 +92,11 @@ outputs:
 
   total_lines:
     description: Total number of instrumented lines
+
+  coverageSummary:
+    description: |
+      Full markdown content of the generated coverage report.
+      Useful for embedding in PR comments or custom job summary steps.
 
 branding:
   color: purple
