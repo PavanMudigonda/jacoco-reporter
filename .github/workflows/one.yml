@@ -35,19 +35,9 @@ jobs:
         name: report.xml
         path: ${{ github.workspace }}/jacoco-playground/build/reports/jacoco/testCoverage/testCoverage.xml
 
-    - name: Jacoco Report to PR
-      id: jacoco
-      uses: madrapps/jacoco-report@v1.7.2
-      with:
-        paths: ${{ github.workspace }}/jacoco-playground/build/reports/jacoco/testCoverage/testCoverage.xml
-        token: ${{ secrets.GITHUB_TOKEN }}
-        min-coverage-overall: 40
-        min-coverage-changed-files: 60
-        debug-mode: false
-
     - name: JaCoCo Code Coverage Report
       id: jacoco_reporter
-      uses: PavanMudigonda/jacoco-reporter@v5.1
+      uses: ./
       with:
         coverage_results_path: ${{ github.workspace }}/jacoco-playground/build/reports/jacoco/testCoverage/testCoverage.xml
         coverage_report_name: Coverage
