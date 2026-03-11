@@ -12,10 +12,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
 
-      - name: checkout
-        uses: actions/checkout@v2
-      - name: use this action, with existing test results
-        uses: PavanMudigonda/jacoco-reporter
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      - name: JaCoCo Coverage Report
+        uses: ./
         with:
           coverage_results_path: jacoco-report/example.jacoco.xml
           coverage_report_name: Code Coverage Report

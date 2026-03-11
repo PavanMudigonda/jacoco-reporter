@@ -1,21 +1,73 @@
-#1
 name: CI
+
 on:
   push:
     branches: [ main ]
   pull_request:
     branches: [ main ]
   workflow_dispatch:
+
 jobs:
   test:
     runs-on: ubuntu-latest
     steps:
-      - name: JaCoCo Code Coverage Report
-        id: jacoco_reporter
-        uses: PavanMudigonda/jacoco-reporter@v4.7
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      # ── Full report (default mode) ────────────────────────────────────────
+      - name: JaCoCo Coverage Report — full
+        id: jacoco_full
+        uses: ./
         with:
-          coverage_results_path: ./jacoco.xml
+          coverage_results_path: jacoco-report/example.jacoco.xml
           coverage_report_name: Code Coverage Report
           coverage_report_title: JaCoCo
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          skip_check_run: false
+          minimum_coverage: 80
+          fail_below_threshold: true
+
+      - name: Print coverage outputs
+        run: |
+          echo "coverage_percentage      : ${{ steps.jacoco_full.outputs.coverage_percentage }}"
+          echo "coveragePercentageString : ${{ steps.jacoco_full.outputs.coveragePercentageString }}"
+          echo "covered_lines            : ${{ steps.jacoco_full.outputs.covered_lines }}"
+          echo "missed_lines             : ${{ steps.jacoco_full.outputs.missed_lines }}"
+          echo "total_lines              : ${{ steps.jacoco_full.outputs.total_lines }}"
+
+      # ── Summary-only report ───────────────────────────────────────────────
+      - name: JaCoCo Coverage Report — summary only
+        id: jacoco_summary
+        uses: ./
+        with:
+          coverage_results_path: jacoco-report/example.jacoco.xml
+          coverage_report_name: Code Coverage Summary
+          coverage_report_title: JaCoCo Summary
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_only_summary: true
+
+      # ── Skip Check Run (Job Summary only) ────────────────────────────────
+      - name: JaCoCo Coverage Report — job summary only
+        uses: ./
+        with:
+          coverage_results_path: jacoco-report/example.jacoco.xml
+          coverage_report_name: Job Summary Coverage
+          coverage_report_title: JaCoCo Job Summary
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          skip_check_run: true
+
+      # ── Multi-module (comma-separated paths) ─────────────────────────────
+      - name: JaCoCo Coverage Report — multi-module
+        id: jacoco_multi
+        uses: ./
+        with:
+          coverage_results_path: jacoco-report/example.jacoco.xml, jacoco-report/test.xml
+          coverage_report_name: Multi-Module Coverage
+          coverage_report_title: JaCoCo Multi-Module
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          skip_check_run: true
+
+      - name: Print multi-module coverage outputs
+        run: |
+          echo "coverage_percentage : ${{ steps.jacoco_multi.outputs.coverage_percentage }}"
+          echo "covered_lines       : ${{ steps.jacoco_multi.outputs.covered_lines }}"
+          echo "total_lines         : ${{ steps.jacoco_multi.outputs.total_lines }}"

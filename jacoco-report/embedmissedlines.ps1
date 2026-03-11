@@ -7,30 +7,44 @@ param(
 
 $mdData = Get-Content -Path $mdFile
 
-$outputData = @()
+# Build the workspace file index once — avoids an O(n) filesystem scan
+# inside the loop for every missed line.
+$workspaceFiles = Get-ChildItem -Path "$env:GITHUB_WORKSPACE" -Recurse -File
+
+# Use a List to avoid O(n²) array-copy overhead from PowerShell's += on fixed arrays.
+$outputData = [System.Collections.Generic.List[string]]::new()
+
 foreach ($line in $mdData) {
     if ($line -like "- Line #*") {
-        $linePrefix = $line.Split("|")[0]
-        $lineNumber = $linePrefix.Split("#")[1]
-        $arrayLineNumber = $lineNumber - 1
+        $parts      = $line.Split('|')
+        $linePrefix = $parts[0]
+        $lineNumber = [int]($linePrefix.Split('#')[1])
+        $filePath   = $parts[1]
 
-        $filePath = $line.Split("|")[1]
         if ($IsWindows -or $PSVersionTable.PSVersion.Major -le 5) {
-            $filePath = $filePath.Replace("/","\")
+            $filePath = $filePath.Replace('/', '\')
         }
-        $workspaceFiles = Get-ChildItem -Path "$env:GITHUB_WORKSPACE" -Recurse -File
-        $resolvedFilePath = $workspaceFiles | Where-Object {$_.FullName -like "*$filePath"}
-        $fileContents = Get-Content -Path $resolvedFilePath
-        $missedLine = $fileContents[$arrayLineNumber]
 
-        $outputData += $linePrefix
-        $outputData += "``````"
-        $outputData += $missedLine
-        $outputData += "``````"
+        $matches = @($workspaceFiles | Where-Object { $_.FullName -like "*$filePath" })
 
-    }
-    else {
-        $outputData += $line
+        if ($matches.Count -eq 0) {
+            Write-Warning "embedmissedlines: source file not found for '$filePath' — skipping line embed"
+            $outputData.Add($line)
+            continue
+        }
+        if ($matches.Count -gt 1) {
+            Write-Warning "embedmissedlines: multiple files matched '$filePath', using first match: $($matches[0].FullName)"
+        }
+
+        $fileContents = Get-Content -Path $matches[0].FullName
+        $missedLine   = $fileContents[$lineNumber - 1]
+
+        $outputData.Add($linePrefix)
+        $outputData.Add('```')
+        $outputData.Add($missedLine)
+        $outputData.Add('```')
+    } else {
+        $outputData.Add($line)
     }
 }
 
