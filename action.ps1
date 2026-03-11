@@ -164,9 +164,8 @@ function Format-Percentage {
 
 function Set-Outcome {
     # Default to success; only override when threshold enforcement is requested.
-    $script:status           = 'success'
-    $script:level            = 'notice'
-    $script:messageToDisplay = "Code Coverage $script:coveragePercentageString"
+    $script:status = 'success'
+    $script:level  = 'notice'
 
     $minCoverage = $inputs.minimum_coverage
     $failBelow   = Parse-Bool $inputs.fail_below_threshold
