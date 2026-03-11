@@ -1,4 +1,4 @@
-# JaCoCo Code Coverage Reporter v5.0
+# JaCoCo Code Coverage Reporter v5.1
 
 GitHub Action to Publish JaCoCo Format Code Coverage XML and attach it
 to the Workflow Run as a Check Run. You can even set threshold coverage percentage and fail the action.
@@ -28,7 +28,7 @@ jobs:
       # generates coverage-report.md and publishes as checkrun
       - name: JaCoCo Code Coverage Report
         id: jacoco_reporter
-        uses: PavanMudigonda/jacoco-reporter@v5.0
+        uses: PavanMudigonda/jacoco-reporter@v5.1
         with:
           coverage_results_path: jacoco-report/test.xml
           coverage_report_name: Coverage
