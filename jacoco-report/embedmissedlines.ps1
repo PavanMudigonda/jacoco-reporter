@@ -5,6 +5,12 @@ param(
     [string]$mdFile
 )
 
+# Guard: GITHUB_WORKSPACE must be set; skip embedding gracefully when running locally.
+if (-not $env:GITHUB_WORKSPACE) {
+    Write-Warning "embedmissedlines: GITHUB_WORKSPACE is not set — skipping source line embedding"
+    return
+}
+
 $mdData = Get-Content -Path $mdFile
 
 # Build the workspace file index once — avoids an O(n) filesystem scan
@@ -19,25 +25,35 @@ foreach ($line in $mdData) {
         $parts      = $line.Split('|')
         $linePrefix = $parts[0]
         $lineNumber = [int]($linePrefix.Split('#')[1])
-        $filePath   = $parts[1]
+        $filePath   = $parts[1].Trim()   # Trim whitespace from the parsed path
 
         if ($IsWindows -or $PSVersionTable.PSVersion.Major -le 5) {
             $filePath = $filePath.Replace('/', '\')
         }
 
-        $matches = @($workspaceFiles | Where-Object { $_.FullName -like "*$filePath" })
+        $matched = @($workspaceFiles | Where-Object { $_.FullName -like "*$filePath" })
 
-        if ($matches.Count -eq 0) {
+        if ($matched.Count -eq 0) {
             Write-Warning "embedmissedlines: source file not found for '$filePath' — skipping line embed"
             $outputData.Add($line)
             continue
         }
-        if ($matches.Count -gt 1) {
-            Write-Warning "embedmissedlines: multiple files matched '$filePath', using first match: $($matches[0].FullName)"
+        if ($matched.Count -gt 1) {
+            Write-Warning "embedmissedlines: multiple files matched '$filePath', using first match: $($matched[0].FullName)"
         }
 
-        $fileContents = Get-Content -Path $matches[0].FullName
-        $missedLine   = $fileContents[$lineNumber - 1]
+        # Force an array with @() — Get-Content returns a plain string (not an array)
+        # for single-line files, causing index access to return individual characters.
+        $fileContents = @(Get-Content -Path $matched[0].FullName)
+
+        # Guard: line number from the XML could exceed the actual file length.
+        if ($lineNumber -lt 1 -or $lineNumber -gt $fileContents.Count) {
+            Write-Warning "embedmissedlines: line $lineNumber is out of range for '$($matched[0].FullName)' ($($fileContents.Count) lines) — skipping"
+            $outputData.Add($line)
+            continue
+        }
+
+        $missedLine = $fileContents[$lineNumber - 1]
 
         $outputData.Add($linePrefix)
         $outputData.Add('```')
