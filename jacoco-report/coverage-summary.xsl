@@ -9,6 +9,9 @@
         <xsl:value-of select="/report/@name"/>
     </xsl:param>
 
+    <!-- "Coverage Report" for check-run summaries, "Code Coverage Summary" for job summaries -->
+    <xsl:param name="tableHeader">Coverage Report</xsl:param>
+
     <xsl:template match="/">
 # Coverage Report: <xsl:value-of select="$reportTitle"/>
 
@@ -27,56 +30,13 @@
     </xsl:choose>
 </xsl:variable>
 
-| Outcome                                      | Value |
+| <xsl:value-of select="$tableHeader"/>        | Value |
 |----------------------------------------------|-------|
 | Code Coverage %                              | <xsl:value-of select="$overallPercentage"/>% |
 | :heavy_check_mark: Number of Lines Covered   | <xsl:value-of select="$covered"/> |
 | :x: Number of Lines Missed                   | <xsl:value-of select="$missed"/> |
 | Total Number of Lines                        | <xsl:value-of select="$covered + $missed"/> |
 
-
-## Details:
-
-    <xsl:apply-templates select="/report/package"/>
-    </xsl:template>
-
-    <xsl:template match="package">
-### <xsl:value-of select="@name"/>
-
-        <xsl:apply-templates select="sourcefile"/>
-    </xsl:template>
-
-    <xsl:template match="sourcefile">
-        <xsl:variable name="linesMissed" select="counter[@type='LINE']/@missed"/>
-        <xsl:variable name="icon">
-            <xsl:choose>
-                <xsl:when test="$linesMissed = '0'">:heavy_check_mark:</xsl:when>
-                <xsl:otherwise>:x:</xsl:otherwise>
-            </xsl:choose>
-        </xsl:variable>
-
-&lt;details&gt;
-    &lt;summary&gt;
-<xsl:value-of select="$icon"/><xsl:text> </xsl:text><xsl:value-of select="@name"/>
-    &lt;/summary&gt;
-
-        <xsl:choose>
-            <xsl:when test="$linesMissed = 0">
-#### All Lines Covered!
-            </xsl:when>
-            <xsl:otherwise>
-#### Lines Missed:
-            </xsl:otherwise>
-        </xsl:choose>
-
-        <xsl:apply-templates select="line[@mi='1']"/>
-&lt;/details&gt;
-
-    </xsl:template>
-
-    <xsl:template match="line[@mi='1']">
-        <xsl:variable name="fileName" select="../@name"/>
-- Line #<xsl:value-of select="@nr"/>|<xsl:value-of select="../../@name"/>/<xsl:value-of select="$fileName"/>
     </xsl:template>
 
 </xsl:stylesheet>

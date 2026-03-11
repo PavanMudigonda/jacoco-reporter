@@ -1,104 +1,107 @@
 
-## This is a SAMPLE metadata file for a GitHub Action.  For more info:
-##    https://help.github.com/en/articles/metadata-syntax-for-github-actions
-
 name: jacoco-reporter
 author: Pavan Mudigonda
 description: |
-  Publishes JaCoCo format Coverage Report in GitHub Actions as Checksuite and enforces Code Coverage Quality Gate.
+  Publishes JaCoCo format Coverage Report in GitHub Actions as a Check Run
+  and enforces a Code Coverage Quality Gate.
 
-## Here you describe your *formal* inputs -- those that are
-## documented and can be displayed by the marketplace.
-## You also use these to identify the *required* inputs.
 inputs:
 
   coverage_results_path:
     description: |
-      Path to the JaCoCo coverage results file which will be used to generate
-      a report. The only coverage results format supported is the
-      JaCoCo XML schema.
+      Path (or comma-separated list of paths) to one or more JaCoCo coverage
+      XML files. Multiple paths enable multi-module project support — line
+      counters are summed across all files and a combined report is produced.
+      Example: "module-a/jacoco.xml, module-b/jacoco.xml"
+      Note: coverage percentage is calculated from LINE coverage counters.
+      This will differ from JaCoCo HTML reports, which show INSTRUCTION coverage.
     required: true
-
-  output_level:
-    description: |
-      Optionally specify the level of output detail for the test results.
-      May be one of: `none`, `Minimal`, `normal`, `detailed`, `diagnostic`
-      The default is `normal`.
-    required: false
 
   github_token:
     description: |
-      GITHUB_TOKEN to authenticate against API calls to attach
-      report to Workflow Run.
+      GITHUB_TOKEN used to authenticate against the GitHub API when
+      attaching the coverage report to the Workflow Run.
     required: false
-    default: ${{github.token}}
+    default: ${{ github.token }}
 
-  skip_check_run:
+  ghes_api_endpoint:
     description: |
-      If true, will skip attaching the Tests Result report to
-      the Workflow Run using a Check Run.  Useful if you just
-      want to produce a Gist-based report via the `gist_name`
-      and `gist_token` input parameters.
-    required: false
-
-  coverage_paths:
-    description: |
-      Comma-separated list of one or more directories to scan for code 
-      coverage, relative to the root of the project. Will include all .ps1
-      and .psm1 files under these directories recursively.
+      GitHub Enterprise Server (GHES) API endpoint URL.
+      When set, all API calls are directed to this endpoint instead of
+      the default https://api.github.com.
+      Example: https://github.example.com/api/v3
     required: false
 
   coverage_report_name:
     description: |
-      The name of the code coverage report object that will be attached
-      to the Workflow Run.  Defaults to the name
-      `COVERAGE_RESULTS_<datetime>` where `<datetime>` is in the form
-      `yyyyMMdd_hhmmss`.
+      Name of the Check Run object attached to the Workflow Run.
+      Defaults to `COVERAGE_RESULTS_<yyyyMMdd_hhmmss>`.
     required: false
 
   coverage_report_title:
     description: |
-      The title of the code coverage report that will be embedded in the
-      report itself, which defaults to the same as the
-      `code_coverage_report_name` input.
+      Title embedded inside the coverage report itself.
+      Defaults to the value of `coverage_report_name`.
     required: false
 
   minimum_coverage:
-    description: 'Minimum allowed coverage percentage as an integer.'
+    description: |
+      Minimum required coverage percentage (integer).
+      Used together with `fail_below_threshold`.
     required: false
-    
+
   fail_below_threshold:
-    description: 'Fail the action when the minimum coverage was not met.'
+    description: |
+      When `true`, the action will fail if coverage is below `minimum_coverage`.
     required: false
-    
+    default: 'false'
+
+  skip_check_run:
+    description: |
+      When `true`, skips publishing the coverage report as a GitHub Check Run.
+      Use this when you only want the GitHub Job Summary output.
+    required: false
+    default: 'false'
+
   publish_only_summary:
     description: |
-      If true, will skip attaching the Tests Result report to the 
-      Workflow Run using a Check Run. Useful if your report has 65k 
-      characters that is not accepted by Github REST and GraphQL APIs
+      When `true`, publishes only the summary table instead of the full
+      file-level report. Useful when the full report exceeds GitHub's
+      65 k-character API limit.
+      Note: the action will automatically switch to summary mode if the full
+      report exceeds the limit, even when this is `false`.
     required: false
+    default: 'false'
 
-## Here you describe your *formal* outputs.
 outputs:
-  
+
   coverage_percentage:
-    description: Coverage Percentage
+    description: Coverage percentage as a number (e.g. `85.23`). Based on LINE coverage.
+
+  coveragePercentage:
+    description: Coverage percentage as a number — alias for `coverage_percentage`
+
+  coveragePercentageString:
+    description: Coverage percentage as a formatted string (e.g. `85.23 %`)
 
   covered_lines:
-    description: Covered Lines
+    description: Number of lines covered by tests
 
   missed_lines:
-    description: Missed Lines
+    description: Number of lines not covered by tests
 
   total_lines:
-    description: Total Lines
+    description: Total number of instrumented lines
+
+  coverageSummary:
+    description: |
+      Full markdown content of the generated coverage report.
+      Useful for embedding in PR comments or custom job summary steps.
 
 branding:
   color: purple
   icon: check-circle
 
-## Even though the Action logic may be implemented
-## in PWSH, we still need a NodeJS entry point
 runs:
   using: node24
   main: _init/index.js
