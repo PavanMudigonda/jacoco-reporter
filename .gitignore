@@ -333,3 +333,4 @@ ASALocalRun/
 ## Standard Ignores
 _IGNORE/
 _TMP/
+jacoco-playground/
