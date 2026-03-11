@@ -181,7 +181,6 @@ function Set-Outcome {
 }
 
 function Set-Outputs {
-    # Scalar outputs — safe to use Set-ActionOutput directly.
     $pairs = @{
         coveragePercentageString = $script:coveragePercentageString
         coveragePercentage       = $script:coveragePercentage
@@ -191,8 +190,14 @@ function Set-Outputs {
         total_lines              = $script:totalLines
     }
     foreach ($kv in $pairs.GetEnumerator()) {
+        # Set-ActionVariable makes the value available as an env var in subsequent steps.
         Set-ActionVariable -Name $kv.Key -Value $kv.Value
-        Set-ActionOutput   -Name $kv.Key -Value $kv.Value
+        # Write directly to GITHUB_OUTPUT — Set-ActionOutput in older GitHubActions
+        # module versions uses the deprecated ::set-output:: workflow command which
+        # GitHub has disabled, causing step outputs to be silently empty.
+        if ($env:GITHUB_OUTPUT) {
+            Add-Content -Path $env:GITHUB_OUTPUT -Value "$($kv.Key)=$($kv.Value)"
+        }
     }
 
     # coverageSummary is multiline markdown — must use heredoc delimiter syntax
