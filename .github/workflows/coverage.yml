@@ -69,5 +69,3 @@ jobs:
         echo "coverage_percentage      : ${{ steps.jacoco_reporter.outputs.coverage_percentage }}"
         echo "coveragePercentageString : ${{ steps.jacoco_reporter.outputs.coveragePercentageString }}"
 
-    - name: Publish Coverage Workflow Build Summary
-      run: echo "${{ steps.jacoco_reporter.outputs.coverageSummary }}" >> $GITHUB_STEP_SUMMARY

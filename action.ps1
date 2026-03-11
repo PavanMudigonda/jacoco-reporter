@@ -124,6 +124,12 @@ function Build-SummaryReport {
     [System.IO.File]::WriteAllText($script:coverage_summary_path, $combined.ToString())
 }
 
+function Write-StepSummary([string]$content) {
+    if ($env:GITHUB_STEP_SUMMARY -and $content) {
+        Add-Content -Path $env:GITHUB_STEP_SUMMARY -Value $content
+    }
+}
+
 ## ── Coverage Analysis ─────────────────────────────────────────────────────────
 
 function Parse-CoverageXML {
@@ -319,9 +325,11 @@ if ($publishOnlySummary) {
 } else {
     Build-CoverageReport
 }
-if ($skipCheckRun) {
-    Build-SummaryReport
-}
+# Always build the compact job-summary format and write it directly to
+# $GITHUB_STEP_SUMMARY.  This is more reliable than relying on the workflow
+# to echo the coverageSummary output (echo mangles multiline markdown).
+Build-SummaryReport
+Write-StepSummary -content ([System.IO.File]::ReadAllText($script:coverage_summary_path))
 
 # Step 2 ── Parse coverage data and compute metrics
 Parse-CoverageXML
