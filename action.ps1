@@ -243,23 +243,59 @@ function Publish-ToCheckRun {
     }
     Write-ActionInfo "  API  : $apiBase"
 
-    $url = "$apiBase/repos/$repoFullName/check-runs"
     $hdr = @{
         Accept        = 'application/vnd.github+json'
         Authorization = "token $ghToken"
     }
-    $bdy = @{
+
+    # Shared output block used in both POST and PATCH.
+    $outputBlock = @{
+        title   = "Code Coverage $coveragePercentage"
+        summary = "Run completed at ``$([datetime]::Now)``"
+        text    = $reportData
+    }
+
+    # POST body: head_sha is REQUIRED by the create endpoint.
+    $postBody = @{
         name       = $reportName
         head_sha   = $ref
         status     = 'completed'
         conclusion = $outcome
-        output     = @{
-            title   = "Code Coverage $coveragePercentage"
-            summary = "Run completed at ``$([datetime]::Now)``"
-            text    = $reportData
-        }
+        output     = $outputBlock
     }
-    Invoke-WebRequest -Headers $hdr $url -Method Post -Body ($bdy | ConvertTo-Json)
+
+    # PATCH body: head_sha is NOT accepted by the update endpoint (causes 422).
+    $patchBody = @{
+        name       = $reportName
+        status     = 'completed'
+        conclusion = $outcome
+        output     = $outputBlock
+    }
+
+    # Upsert: if a check run with this name already exists for this SHA (e.g. from
+    # a parallel push + pull_request trigger), update it instead of creating a duplicate.
+    $checkName  = [System.Uri]::EscapeDataString($reportName)
+    $listUrl    = "$apiBase/repos/$repoFullName/commits/$ref/check-runs?check_name=$checkName&per_page=1"
+    $existingId = $null
+    try {
+        $listResp    = Invoke-WebRequest -Headers $hdr $listUrl -Method Get
+        $existingRuns = ($listResp.Content | ConvertFrom-Json).check_runs
+        if ($existingRuns.Count -gt 0) {
+            $existingId = $existingRuns[0].id
+        }
+    } catch {
+        # Not fatal — fall through to create a new one.
+    }
+
+    if ($existingId) {
+        Write-ActionInfo "  Updating existing Check Run: $existingId"
+        $url = "$apiBase/repos/$repoFullName/check-runs/$existingId"
+        Invoke-WebRequest -Headers $hdr $url -Method Patch -Body ($patchBody | ConvertTo-Json -Depth 5)
+    } else {
+        Write-ActionInfo "  Creating new Check Run"
+        $url = "$apiBase/repos/$repoFullName/check-runs"
+        Invoke-WebRequest -Headers $hdr $url -Method Post -Body ($postBody | ConvertTo-Json -Depth 5)
+    }
 }
 
 ## ── Quality Gate ──────────────────────────────────────────────────────────────
