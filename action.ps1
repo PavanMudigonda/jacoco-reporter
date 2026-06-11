@@ -35,7 +35,7 @@ $inputs = @{
 
 $test_results_dir = Join-Path $PWD _TMP
 Write-ActionInfo "Creating test results space"
-mkdir $test_results_dir
+mkdir $test_results_dir -Force | Out-Null
 Write-ActionInfo $test_results_dir
 $script:coverage_report_path  = Join-Path $test_results_dir coverage-results.md
 $script:coverage_summary_path = Join-Path $test_results_dir coverage-summary.md
@@ -53,7 +53,7 @@ function Build-CoverageReport
     if (-not $script:coverage_report_name) {
         $script:coverage_report_name = "COVERAGE_RESULTS_$([datetime]::Now.ToString('yyyyMMdd_hhmmss'))"
     }
-    if (-not $coverage_report_title) {
+    if (-not $script:coverage_report_title) {
         $script:coverage_report_title = $script:coverage_report_name
     }
 
@@ -79,7 +79,7 @@ function Build-CoverageSummaryReport
     if (-not $script:coverage_report_name) {
         $script:coverage_report_name = "COVERAGE_RESULTS_$([datetime]::Now.ToString('yyyyMMdd_hhmmss'))"
     }
-    if (-not $coverage_report_title) {
+    if (-not $script:coverage_report_title) {
         $script:coverage_report_title = $script:coverage_report_name
     }
 
@@ -102,7 +102,7 @@ function Build-SummaryReport
     if (-not $script:coverage_report_name) {
         $script:coverage_report_name = "COVERAGE_RESULTS_$([datetime]::Now.ToString('yyyyMMdd_hhmmss'))"
     }
-    if (-not $coverage_report_title) {
+    if (-not $script:coverage_report_title) {
         $script:coverage_report_title = $script:coverage_report_name
     }
 
@@ -318,7 +318,7 @@ function Publish-ToCheckRun {
     $url = "https://api.github.com/repos/$repoFullName/check-runs"
     $hdr = @{
         Accept = 'application/vnd.github+json'
-        Authorization = "token $ghToken"
+        Authorization = "Bearer $ghToken"
     }
     $bdy = @{
         name       = $reportName
@@ -335,7 +335,29 @@ function Publish-ToCheckRun {
     Write-ActionInfo $url
     Write-ActionInfo "$bdy"
 
-    Invoke-WebRequest -Headers $hdr $url -Method Post -Body ($bdy | ConvertTo-Json)
+    try {
+        Invoke-WebRequest -Headers $hdr $url -Method Post -Body ($bdy | ConvertTo-Json)
+    }
+    catch {
+        $statusCode = $null
+        $responseBody = $null
+        if ($_.Exception.Response) {
+            $statusCode = [int]$_.Exception.Response.StatusCode
+            try {
+                $responseBody = $_.ErrorDetails.Message
+            }
+            catch {
+                $responseBody = $null
+            }
+        }
+
+        if ($statusCode -eq 401 -or $statusCode -eq 403) {
+            Write-ActionWarning "Unable to publish check-run (HTTP $statusCode). Continuing without check-run. Response: $responseBody"
+            return
+        }
+
+        throw
+    }
     # Grab Check ID
     # $checkId = ( ConvertFrom-Json $response.Content ).id
     # $checkUrl = ( ConvertFrom-Json $response.Content ).url
