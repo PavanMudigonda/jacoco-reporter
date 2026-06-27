@@ -35,7 +35,7 @@ $inputs = @{
 
 $test_results_dir = Join-Path $PWD _TMP
 Write-ActionInfo "Creating test results space"
-mkdir $test_results_dir -Force | Out-Null
+New-Item -ItemType Directory -Force -Path $test_results_dir | Out-Null
 Write-ActionInfo $test_results_dir
 $script:coverage_report_path  = Join-Path $test_results_dir coverage-results.md
 $script:coverage_summary_path = Join-Path $test_results_dir coverage-summary.md
